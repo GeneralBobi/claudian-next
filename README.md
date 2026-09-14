@@ -1,3 +1,11 @@
+# Claudian next — 1.0.0 planlama alanı
+
+0.18.7 tabanından ayrılan bağımsız geliştirme deposu. **1.0.0 henüz uygulanmadı veya yayımlanmadı.** Eski sürüm [claudian-app](https://github.com/GeneralBobi/claudian-app/releases/tag/v0.18.7) üzerinde korunur.
+
+Başlangıç: [1.0.0 ürün ve teslim planı](planning/PLAN-1.0.0.md). Plan kararları kapanmadan yeni kodlama/yayın yapılmaz. Aşağıdaki eski README, yalnız alınan tabanın belgesidir.
+
+---
+
 # claudian.app
 
 A Windows application for a local, user-owned Markdown memory shared by AI tools.
