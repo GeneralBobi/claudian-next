@@ -1,7 +1,7 @@
 {
-  "name": "claudian-desktop",
-  "productName": "Claudian",
-  "version": "0.18.7",
+  "name": "claudian-next",
+  "productName": "Claudian Next",
+  "version": "1.0.0-alpha.1",
   "private": true,
   "description": "Claudian ortak hafÄ±za uygulamasÄ±",
   "author": "Claudian",
@@ -19,7 +19,7 @@
     "electron-builder": "26.15.3"
   },
   "build": {
-    "appId": "app.claudian.desktop",
+    "appId": "app.claudian.next",
     "asar": true,
     "directories": {
       "output": "release"
@@ -73,7 +73,8 @@
     "win": {
       "target": "nsis",
       "signExecutable": false,
-      "icon": "assets/icon.ico"
+      "icon": "assets/icon.ico",
+      "executableName": "Claudian Next"
     },
     "nsis": {
       "include": "assets/installer.nsh",
@@ -87,7 +88,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "deleteAppDataOnUninstall": false,
-      "artifactName": "Claudian-Setup-${version}.${ext}"
+      "artifactName": "Claudian-Next-Setup-${version}.${ext}",
+      "shortcutName": "Claudian Next"
     }
   },
   "dependencies": {

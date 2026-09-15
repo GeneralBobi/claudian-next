@@ -1,8 +1,8 @@
-# Claudian next — 1.0.0 planlama alanı
+# Claudian Next — 1.0.0 geliştirme alanı
 
-0.18.7 tabanından ayrılan bağımsız geliştirme deposu. **1.0.0 henüz uygulanmadı veya yayımlanmadı.** Eski sürüm [claudian-app](https://github.com/GeneralBobi/claudian-app/releases/tag/v0.18.7) üzerinde korunur.
+0.18.7 tabanından ayrılan bağımsız geliştirme deposu. **1.0.0-alpha.1 ilk kaynak dilimidir; yayımlanmış veya kullanıma hazır 1.0.0 değildir.** Eski sürüm [claudian-app](https://github.com/GeneralBobi/claudian-app/releases/tag/v0.18.7) üzerinde korunur.
 
-Başlangıç: [1.0.0 ürün ve teslim planı](planning/PLAN-1.0.0.md). Plan kararları kapanmadan yeni kodlama/yayın yapılmaz. Aşağıdaki eski README, yalnız alınan tabanın belgesidir.
+Başlangıç: [1.0.0 ürün ve teslim planı](planning/PLAN-1.0.0.md). Kararı belirlenmiş bağımsız dilimler geliştirilebilir; gerçek hesap kurulumu ve yayın kabul kapılarına bağlıdır. Aşağıdaki eski README, yalnız alınan tabanın belgesidir.
 
 ---
 

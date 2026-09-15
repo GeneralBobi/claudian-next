@@ -10,44 +10,41 @@ const {execFile,spawn}=require('node:child_process');
 const runFile=require('node:util').promisify(execFile);
 const welcome=require('./welcome.cjs');
 const smoke = process.argv.includes('--smoke');
-// Uninstalling the program used to leave everything it had written: the profile, and the
-// skill, startup rule, MCP entry and hook it put inside each AI application. A reinstall then
-// found a profile, opened the review screen instead of setup, and pointed at a notes folder
-// the user had already deleted -- so the wizard never asked where notes should live and no
-// vault was ever created. Measured 12.09.2026 on a clean reinstall. The uninstaller now runs
-// this first: every connection is withdrawn the same way the panel withdraws one, and only
-// then is the application's own state removed. Notes are never touched.
+app.setName('Claudian Next');
+app.setAppUserModelId('app.claudian.next');
+// Next must not withdraw shared host registrations owned by the legacy application.
 const purge = process.argv.includes('--purge');
 const acceptanceRoot=process.env.CLAUDIAN_ACCEPTANCE_ROOT;
 if(acceptanceRoot && (!path.isAbsolute(acceptanceRoot)||!require('node:fs').existsSync(path.join(acceptanceRoot,'.claudian-acceptance'))))throw Error('Acceptance mode requires an explicit marked test directory.');
 if (smoke) app.setPath('userData', require('node:fs').mkdtempSync(path.join(os.tmpdir(), 'claudian-smoke-profile-')));
 if (smoke) app.disableHardwareAcceleration();
+// Until host ownership migration exists, real profiles are inspection-only.
+const isolatedPreview = smoke || Boolean(acceptanceRoot);
+const previewReads = new Set([
+  'app:snapshot','app:preferences','app:discover','app:folder','app:enter',
+  'app:updates','app:copy','app:open','app:obsidian-installed','app:download-obsidian',
+  'connector:status','memory:connections','memory:configuration','memory:existing-skill',
+  'memory:scan-preview','memory:trigger','memory:activity',
+  'memory:health','memory:notice','setup:cancel','memory:verify-cancel'
+]);
+function requirePreviewAccess(name) {
+  if (!isolatedPreview && !previewReads.has(name)) {
+    throw new Error('Claudian Next önizlemesinde gerçek AI bağlantılarını değiştirme kapalıdır. Mevcut bağlantıları korumak için önce güvenli geçiş tamamlanmalıdır.');
+  }
+}
+
 const origin = 'claudian://app';
 let win, core, remoteConnector, migrationError='', setupReview=false, installStamp='';
 protocol.registerSchemesAsPrivileged([{ scheme: 'claudian', privileges: { standard: true, secure: true, supportFetchAPI: true } }]);
-if (!smoke) app.setPath('userData', acceptanceRoot?path.join(acceptanceRoot,'data'):path.join(app.getPath('appData'), 'Claudian Desktop'));
+if (!smoke) app.setPath('userData', acceptanceRoot?path.join(acceptanceRoot,'data'):path.join(app.getPath('appData'), 'Claudian Next'));
 if (purge) app.whenReady().then(purgeInstallation).then(() => app.exit(0)).catch(error => { console.error(error); app.exit(1); });
 else if (!app.requestSingleInstanceLock({ smoke })) { app.quit(); }
 else {
   app.on('second-instance', () => { if (win) { if (win.isMinimized()) win.restore(); win.show(); win.focus(); } });
   app.whenReady().then(start).catch(error => { console.error(error); app.exit(1); });
 }
-// Runs with no window, from the uninstaller. Each failure is reported and the next connection
-// is still attempted: a single unreachable file must not leave the other five installed.
 async function purgeInstallation() {
-  const dataDir = app.getPath('userData');
-  const home = acceptanceRoot ? path.join(acceptanceRoot, 'home') : os.homedir();
-  const setup = new MemorySetup({ home, dataDir, codexHome: !acceptanceRoot && process.env.CODEX_HOME ? process.env.CODEX_HOME : path.join(home, '.codex') });
-  const profile = await setup.snapshot().then(s => s.profile).catch(() => null);
-  for (const host of profile?.hosts || []) {
-    // Uninstalling is not the moment to refuse over a file that drifted: the user asked for
-    // this to be gone. Originals are copied into the removal journal before anything changes.
-    try { await setup.removeHost(host.id, {force: true}); console.log('removed ' + host.id); }
-    catch (error) { console.error('could not remove ' + host.id + ': ' + error.message); }
-  }
-  // The notes folder is the user's, so it stays. Only what this application wrote about
-  // itself is removed, and only after the connections above are gone.
-  await fs.rm(dataDir, { recursive: true, force: true });
+  throw new Error('Claudian Next automatic connection removal is disabled until migration ownership is implemented.');
 }
 async function start() {
   let home = acceptanceRoot?path.join(acceptanceRoot,'home'):os.homedir();
@@ -92,14 +89,16 @@ async function start() {
       selectedLanguage=selectedLanguage||(smoke?'en':((app.getLocale()||'').toLowerCase().startsWith('tr')?'tr':'en'));
     }
     const languageChanged=await core.useLanguage(selectedLanguage);
-    if(languageChanged||(await core.snapshot()).profile?.protocolVersion !== require('./policy.cjs').VERSION) await core.upgrade();
-    await core.sweepResidue();
+    if(isolatedPreview) {
+      if(languageChanged||(await core.snapshot()).profile?.protocolVersion !== require('./policy.cjs').VERSION) await core.upgrade();
+      await core.sweepResidue();
+    }
   } catch(error) { migrationError=error.message; }
   const installed = Boolean((await core.snapshot()).profile);
   installStamp = app.getVersion()+':'+await fs.readFile(path.join(path.dirname(process.resourcesPath),'install-session.txt'),'utf8').catch(e=>{if(e.code==='ENOENT')return 'legacy';throw e;});
   setupReview = !smoke && await require('./setup-review.cjs').pending(core.dataDir,installStamp,(await core.snapshot()).profile);
   win = new BrowserWindow({ icon: path.join(__dirname, 'assets', 'icon.ico'), width: installed ? 940 : 720, height: installed ? 760 : 640, minWidth: 680, minHeight: 560,
-    title: installed ? 'claudian.app' : 'claudian.app — Setup', backgroundColor: '#0e0e10', show: false, autoHideMenuBar: true,
+    title: installed ? 'Claudian Next — Preview' : 'Claudian Next — Preview Setup', backgroundColor: '#0e0e10', show: false, autoHideMenuBar: true,
     webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false, backgroundThrottling: false, offscreen: smoke } });
   win.removeMenu();
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
@@ -110,12 +109,12 @@ async function start() {
   function handle(name, fn) {
     ipcMain.handle(name, async (event, ...args) => {
       if (event.sender !== win.webContents || event.senderFrame !== win.webContents.mainFrame || !event.senderFrame.url.startsWith(origin + '/')) throw new Error('Geçersiz uygulama isteği.');
-      try { return { ok: true, value: await fn(...args) }; }
+      try { requirePreviewAccess(name); return { ok: true, value: await fn(...args) }; }
       catch (error) { return { ok: false, error: error.message }; }
     });
   }
   require('./companion-bridge.cjs').attach(handle,session);
-  handle('app:snapshot', async () => ({...await core.snapshot(),appVersion:app.getVersion(),migrationError,setupReview}));
+  handle('app:snapshot', async () => ({...await core.snapshot(),appVersion:app.getVersion(),migrationError,setupReview,previewReadOnly:!isolatedPreview}));
   handle('setup:review', async (hosts, consent, withdraw) => {
     const result=await require('./setup-review.cjs').apply(core,hosts,consent,withdraw);
     return result;
@@ -126,7 +125,8 @@ async function start() {
 
   handle('app:preferences', language => core.preferences(language));
   handle('memory:connections', () => core.connections());
-  remoteConnector = await new (require('./remote-connector.cjs').RemoteConnector)({dataDir:core.dataDir,profile:async()=>(await core.snapshot()).profile,safeStorage}).load();
+  remoteConnector = new (require('./remote-connector.cjs').RemoteConnector)({dataDir:core.dataDir,profile:async()=>(await core.snapshot()).profile,safeStorage});
+  if(isolatedPreview) await remoteConnector.load();
   handle('connector:status',async()=>({...await remoteConnector.status(),desktopExtension:await require('./connector-package.cjs').desktopStatus(home,core.dataDir,{launcher:core.launcher,mcpScript:core.mcpScript})}));
   handle('connector:desktop-install',async()=>{
     const profile=(await core.snapshot()).profile;
@@ -243,8 +243,11 @@ async function start() {
       {vault: profile?.vault, server: connection?.artifacts?.server});
   });
   handle('memory:repair', host => core.upgrade(host));
-  const RELEASES='https://api.github.com/repos/GeneralBobi/claudian-app/releases/latest';
+  // No published Next channel exists yet. Never fall back to the legacy installer.
+  const UPDATES_ENABLED=false;
+  const RELEASES='https://api.github.com/repos/GeneralBobi/claudian-next/releases/latest';
   handle('app:updates', async () => {
+    if(!UPDATES_ENABLED)return {latest:app.getVersion(),available:false,channel:'next-preview',disabled:true};
     const response=await net.fetch(RELEASES,{headers:{'Accept':'application/vnd.github+json'},signal:AbortSignal.timeout(12000)});
     if(!response.ok)throw new Error('Update service unavailable. Try again later.');
     const release=await response.json(); const latest=String(release.tag_name||'').replace(/^v/,'');
@@ -253,10 +256,11 @@ async function start() {
     const index=a.findIndex((n,i)=>n!==b[i]);return {latest,available:index>=0&&a[index]>b[index]};
   });
   handle('app:download-update', async () => {
+    if(!UPDATES_ENABLED)throw new Error('Claudian Next preview has no published update channel.');
     const response=await net.fetch(RELEASES,{headers:{'Accept':'application/vnd.github+json'},signal:AbortSignal.timeout(12000)});
     if(!response.ok)throw new Error('Update service unavailable. Try again later.');
     const release=await response.json();
-    const asset=(release.assets||[]).find(a=>/^Claudian-Setup-[0-9.]+\.exe$/i.test(String(a.name||'')));
+    const asset=(release.assets||[]).find(a=>/^Claudian-Next-Setup-[0-9.]+(?:-[a-z0-9.-]+)?\.exe$/i.test(String(a.name||'')));
     if(!asset||typeof asset.browser_download_url!=='string')throw new Error('This release has no Windows installer to download.');
     const url=new URL(asset.browser_download_url);
     if(url.protocol!=='https:'||!/(^|\.)github(usercontent)?\.com$/i.test(url.hostname))throw new Error('Unexpected download location; nothing was downloaded.');
@@ -428,7 +432,7 @@ async function start() {
       }
     } catch (error) { console.error('[claudian] fark etme turu:', error.message); }
   };
-  if (!smoke) {
+  if (!smoke && isolatedPreview) {
     setTimeout(() => void noticed(), 8000);
     setInterval(() => void noticed(), 30 * 60 * 1000);
   }

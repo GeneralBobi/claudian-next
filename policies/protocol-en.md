@@ -253,4 +253,4 @@ Provider memory or custom instructions may hold a short preference to initialize
 
 On a surface with its own account memory (ChatGPT, the Claude application) this short instruction lives in that surface's **adapter note**. When the adapter note's state is "not offered", the instruction is shown to the user once and their **consent** is asked before adding it; that is a permission question, not a breach of the silence rule. If they agree it is added, and not added twice if it is already there. The answer is recorded on the adapter note's state line and never offered again.
 
-Account memory follows the user to devices where the connection was never added. The two cases stay apart: a tool that exists but fails is reported in one line; a tool that does not exist on that surface is not mentioned at all.
+Account memory follows the user to devices where the connection was never added. If memory cannot be accessed, including when tools are entirely absent, report it in one line in the first reply and continue with available context. Report a failed tool call briefly in that same reply. Successful access is silent; inaccessible notes are never treated as read.

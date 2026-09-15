@@ -1,6 +1,18 @@
 # Claudian 1.0.0 — Ürün ve teslim planı
 
-Durum: planlama; 1.0.0 yazılımı veya yayınlanmış sürümü değildir. Başlangıç kaynağı yayımlanmış 0.18.7'dir. Yeni depo eski uygulamanın yerine geçirilmez. Bu belge kullanıcı hedefleriyle uygulama önerilerini açıkça ayırır.
+Durum: 15.09.2026 itibarıyla karar alma ve ilk uygulama dilimi; kaynak sürümü `1.0.0-alpha.1`, yayımlanmış 1.0.0 değildir. Başlangıç kaynağı yayımlanmış 0.18.7'dir. Yeni depo eski uygulamanın yerine geçirilmez. Kullanıcı planlama, yerinde karar alma, uygulama ve ajanlarla denetim yetkisi verdi.
+
+## Uygulanacak ürün kararı
+
+**Claudian bir bağlantı ayarları paneli değil, kullanıcının AI'lar arasında yanında taşıdığı hafızadır.** Teslimin ölçüsü: kullanıcı bir AI'a verdiği kalıcı bilgiyi diğerinde yeniden anlatmaz; düzelttiği bilgi güncel kalır. Kart, hook, protokol veya test sayısı bu sonucun yerine geçmez.
+
+- Mevcut genel Markdown deposu ve güvenli ortak araçlar korunacak; kişisel Core davranış referansı olacak. Yeni veritabanı veya sağlayıcı başına ayrı hafıza motoru kurulmayacak.
+- Yerel dağıtım sürümlü paket, web/mobil dağıtım ortak yayımlanabilir entegrasyon + kişiye özel yetki olacak. Kullanıcıdan connector geliştirmesi beklenmeyecek.
+- İlk tam akış Claude Desktop yerel kurulumudur; bunu Claude uzak/mobil ve ChatGPT genel entegrasyon hazırlığı izler. Yerel başarı mobil hedefin yerine geçmez. Diğer istenen yüzeyler kapsamdan silinmez; resmî destek koşuluna göre açık durumda kalır.
+- İlk taramanın garantili kapsamı seçilen notlardır. Sağlayıcının özel hafızası/geçmişini içe aktarma genel dizin sürümünün varsayılanı olmayacak; dağıtım kurallarıyla uyumu ayrıca çözülür.
+- Bilgisayar açıkken uzak erişim taşınır. Bilgisayar kapalı erişim için kullanıcı verisini sessizce buluta kopyalama veya yeni ücret başlatma yoktur.
+
+Dayanaklar: [Dağıtım ve yüzeyler](DISTRIBUTION-1.0.0.md), [çekirdek kararları](CORE-DECISIONS-1.0.0.md), [uygulama ayrımı](ISOLATION-1.0.0.md). Bunlar teknik karar kayıtlarıdır; sağlayıcı onayı ve gerçek kullanıcı kabulü yerine geçmez.
 
 ## Sabit ürün hedefi
 
@@ -46,7 +58,7 @@ Aşağıdaki açıklar kullanıcıya vizyonu tekrar anlattıracak sorular değil
 | K8 | Hook ve protokol maliyeti? | İnce giriş ve gerekli bağlam yaklaşımı; çalışan davranışı bozmadan hangi ek mekanizma gerektiğine kanıt. Her tur töreni varsayılan mimari zorunluluk değil. Sayısal bütçe kullanıcı onayına sunulur. |
 | K9 | Mevcut kurulumla yan yana yaşama ve geçiş? | Ayrı uygulama kimliği, veri dizini, güncelleme kanalı, açık migration ve geri dönüş tasarımı. Ortak kaynak kopyası bunları otomatik izole etmez. |
 
-**Kodlama kapısı:** K1–K9 için karar, dayanak ve kullanıcı etkisi yazılı olmalı. Çözülemeyen sağlayıcı koşulu açık engel olarak kalır; daha uzun prompt yazarak kapatılmaz. Bu plan tek başına kararların kapandığı anlamına gelmez.
+**Uygulama kapısı:** Bir uygulama diliminin dayandığı karar, kanıt ve kullanıcı etkisi yazılı olmalı. Bağımsız güvenli dilimler diğer sağlayıcıların onayını beklemeden yapılır. Çözülemeyen sağlayıcı koşulu o yüzeyin yayın engeli olarak kalır; daha uzun prompt yazarak kapatılmaz. Bu plan tek başına kararların kapandığı anlamına gelmez.
 
 ## Hedef kullanıcı akışı
 
@@ -89,14 +101,37 @@ Her kabul kaydı kullanılan sürüm, yüzey, ortam, beklenen/gerçek sonuç ve 
 
 Süre tahmini kararlar kapanmadan verilmez. Yeni öneri hedefi değiştiriyorsa kullanıcı kararı gerekir; uygulanacak somut çözüm hazırlanmadan yeniden geniş vizyon soruları sorulmaz.
 
+## 15.09 karar durumu ve somut teslimler
+
+| Karar | Seçilen yön | Henüz tamamlanmayan |
+| --- | --- | --- |
+| K1/K2 | Yerel Claude referansı; ortak uzak entegrasyon; yüzey matrisi yazıldı | Genel dizin onayı, boş hesap kurulumları, Gemini/Perplexity dağıtımı |
+| K3/K4 | Mevcut genel store + ortak araçlar; yerel/uzak erişim aynı davranışa bağlı | Ortak servis kimliğiyle kullanıcı-cihaz eşlemesi ve eski bağlantı geçişi |
+| K5 | Erişim yoksa ilk yanıtta kısa bildirim; kaynak metinleri düzeltildi | Eski hesap talimatının güncellenmesi, araç yokken canlı davranış |
+| K6 | İzin, kurulum, araç görünürlüğü, okuma, yazma, ilk tarama ayrı kanıt | Eski test sonucunun yeni klasörde/başka bağlantıda geçersizliği ve engelli yazma UI kabulü |
+| K7 | Bilgisayar açıkken aynı vault'a mobil erişim | Gerçek telefon kabulü; bilgisayar kapalı kullanım ayrı maliyet/veri kararı |
+| K8 | Seçici hafıza korunur; zorunlu her-tur operasyonel muhasebe ortak varsayılan olmaz | Adaptör/hook bağımlılıklarını güvenle ayırma ve davranış/maliyet karşılaştırması |
+| K9 | Next kimlik/profil/kaldırıcı/güncelleme ayrımı kaynakta uygulandı | Ortak host dosyası sahipliği, geçiş ve iki kurulum kabulü |
+
+**Bir sonraki geliştirme dilimi:** Claude Desktop paketinin temiz kurulum yolu ile host dosyası sahipliğini birlikte tamamla. Klasör seçimi → hazırlanmış paket → sağlayıcı onayı → gerçek okuma/yazma → başka AI'da aynı bilginin kullanımı. Yol/JSON/terminal yazdıran akış geçmez. Önce mevcut paketleme kodundaki açığı kapat; yeni kurulum mekanizması yalnız somut gereksinimle eklenir.
+
+Genel dizin için dışarıdan dinamik talimat çekme yerine pakette sürümlü davranış ve veri araçları ayrımı gerekir; seçili notların kullanıcı bağlamı olması dışarıdan çalışma talimatı indirmekle karıştırılmaz. Bu uyarlama ve başvuru tamamlanmadan genel katalogdan tek tuş vaat edilmez.
+
 ## Planın mevcut durumu
 
 - [x] 0.18.7 etiketinden ayrı kaynak çalışma alanı oluşturuldu.
 - [x] Mevcut UI/UX ve kaynak geçmişi korundu.
 - [x] Ürün hedefi, açık kararlar, kabul ölçütleri ve uygulama sırası ayrıldı.
 - [ ] K1–K9 teknik karar dosyaları tamamlandı ve kapsam kabul edildi.
-- [ ] 1.0.0 implementasyonu.
+- [x] İlk kaynak dilimi: Next geliştirme kimliği ve erişememe bildirimi düzeltmesi.
+- [ ] 1.0.0'ın tamamının implementasyonu.
 - [ ] Gerçek kullanıcı/hesap kabulü.
 - [ ] 1.0.0 yayını.
 
-Bu depo eski uygulama kimliği ve güncelleme adreslerini miras alır. İzolasyon kararı uygulanmadan çalıştırıp kurmak eski kurulumla çakışabilir. Şimdilik kaynak ve planlama alanıdır.
+Next uygulama profili ve güncelleme yolu ayrıldı. AI uygulamalarına yazılan ortak dosyaların sahipliği henüz ayrılmadığından normal önizlemede kurulum/onarım ve hesap değiştiren işlemler kapalıdır; arayüz bunu baştan bildirir. Yalnız işaretlenmiş izole kabul ortamında geliştirme akışı açıktır. Tam yan yana kullanım hazır değildir.
+
+### Ajan denetimi ve bu teslimin sınırı
+
+Dağıtım araştırması, kaynak eşlemesi ve izolasyon uygulaması üç ayrı ajana verildi; kaynak eşlemesi ve izolasyon ajanları birbirinin alanlarını ayrıca inceledi. Ana ajan bulguları birleştirdi. Denetimde bulunan gerçek host dosyalarına dokunma riski işlem kapısıyla; hesap talimatının kesin davranış vaat etmesi TR/EN metin düzeltmesiyle ele alındı. Eski hesap talimatlarının otomatik güncellenmediği açık kaldı.
+
+Protokol yükseltme/çakışma koruması için 9, Next izolasyonu için 6 hedefli kontrol geçti; kaynak sözdizimi kontrol edildi. Gerçek hesap kurulumu, tam ürün test paketi, yükleyici ve yayın yapılmadı. Bu kontroller kolay kurulumun veya sürdürülen ortak hafızanın kullanıcı kabulü değildir.

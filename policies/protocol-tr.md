@@ -253,4 +253,4 @@ Sağlayıcı hafızası veya özel talimatlar, Claudian'ı başlatmayı hatırla
 
 Kendi hesap hafızası olan bir yüzeyde (ChatGPT, Claude uygulaması) bu kısa yönerge o yüzeyin **adaptör notunda** durur. Adaptör notundaki durum "teklif edilmedi" ise yönerge kullanıcıya bir kez gösterilir ve eklemek için **onayı istenir**; bu bir izin sorusudur, sessizlik kuralının ihlali değil. Onay gelirse eklenir, aynısı zaten varsa eklenmez. Cevap adaptör notunun durum satırına işlenir ve bir daha teklif edilmez.
 
-Hesap hafızası kullanıcıyla birlikte bağlantının hiç eklenmediği cihazlara da gider. Bu yüzden iki durum ayrı tutulur: araç var ama çağrısı hata veriyorsa tek satırla söylenir; araç o yüzeyde hiç yoksa hiçbir şey söylenmez.
+Hesap hafızası kullanıcıyla birlikte bağlantının hiç eklenmediği cihazlara da gider. Araçların hiç bulunmaması dahil hafıza klasörüne erişilemiyorsa ilk yanıtta tek satırla bildirilir ve mevcut bağlamla devam edilir. Araç çağrısının hatası aynı yanıtta kısaca söylenir. Başarılı erişim sessizdir; erişilemeyen notlar okunmuş sayılmaz.
