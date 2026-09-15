@@ -383,13 +383,28 @@ api.onProgress(e=>{events.push(e);if(busy&&(setup||extending))renderSetup();});
 
 
 
+let mateLocal=null,mateLoading=false,mateAck='',mateQuiet=localStorage.getItem('claudian-mate-quiet')==='true',mateAttempted=false;
+async function refreshMate(){
+ if(mateLoading)return;mateAck='';mateLoading=true;mateAttempted=true;renderCompanion();
+ try{mateLocal=await api.companionLocalStatus();companionIssue='';if(companionData&&!state.previewReadOnly)companionData=await api.companionRefresh();}catch(e){companionIssue=e.message;}finally{mateLoading=false;if(view==='companion')renderCompanion();}
+}
 function renderCompanion(){
- const cards=Array.isArray(companionData?.cards)?companionData.cards.slice(0,3):[];
- content.innerHTML=`<section class="empty companion-native"><div class="caption development-label">${t('UNDER DEVELOPMENT','GELİŞTİRİLİYOR')}</div><div class="wordmark">claudian<span>.</span>app</div><h1>${t('From an assistant to a companion.','Bir asistandan, yol arkadaşına.')}</h1><p>${t('A layer that understands your notes, time and changing circumstances together — and is there at the right moment.','Notlarını, zamanını ve değişen koşullarını birlikte anlayan; doğru anda yanında olan bir katman.')}</p><p>${t('This system is not ready yet. Shared memory works today; we are building the companion on top of it.','Bu sistem henüz hazır değil. Ortak hafıza bugün çalışıyor; yol arkadaşını bunun üzerine geliştiriyoruz.')}</p>${companionIssue?`<p role="status">${esc(companionIssue)}</p>`:''}${!companionData?`<form id="core-form"><label for="core-code">${t('Access code','Access code')}</label><div class="row"><input id="core-code" type="password" autocomplete="off" maxlength="128" required placeholder="•••• — ••••"><button type="submit" class="primary">${t('Connect','Bağlan')} →</button></div></form>`:`<div class="companion-feed"><div class="toolbar"><span>${t('Last received','Son alınan')}: ${esc(companionData.generatedAt?new Date(companionData.generatedAt).toLocaleString(language):'—')}</span>${btn('Refresh','Yenile','core-refresh')}${btn('Disconnect','Bağlantıyı kes','core-disconnect')}</div>${companionData.focus?`<h2>${esc(companionData.focus)}</h2>`:''}${cards.length?cards.map(c=>`<article class="companion-contact"><small>${esc(c.sourceLabel)}</small><h2>${esc(c.title)}</h2><p>${esc(c.body)}</p></article>`).join(''):`<p>${t('No new contact to show.','Gösterilecek yeni temas yok.')}</p>`}</div>`}</section>`;
- const form=document.querySelector('#core-form');if(form)form.addEventListener('submit',e=>{e.preventDefault();const button=form.querySelector('button');button.dataset.action='core-connect';button.type='button';button.click();});
+ content.innerHTML=window.ClaudianCompanion.render({local:mateLocal,core:companionData,issue:companionIssue,loading:mateLoading,quiet:mateQuiet,ack:mateAck,language,previewReadOnly:state.previewReadOnly});
+ window.ClaudianCompanion.mount(content,async(action,id)=>{
+  try{
+   if(action==='quiet'){mateQuiet=!mateQuiet;localStorage.setItem('claudian-mate-quiet',String(mateQuiet));}
+   if(action==='refresh'){mateAck='';await refreshMate();return;}
+   if(action==='source')await api.companionLocalOpenSource(id);
+   if(action==='later'||action==='dismiss'){mateLocal=await api.companionLocalFeedback(id,action);mateAck=action==='later'?t('I will show it here in an hour.','Bir saat sonra burada yeniden görünecek.'):t('Hidden from this panel.','Bu panelden gizlendi.');}
+   if(action==='connect'){companionData=await api.companionConnect(id);companionIssue='';}
+   if(action==='disconnect'){await api.companionDisconnect();companionData=null;}
+  }catch(e){companionIssue=e.message;}
+  if(view==='companion')renderCompanion();
+ });
+ if(!mateAttempted)queueMicrotask(refreshMate);
 }
 api.onVerify(async event=>{if(!challenge||event.host!==challenge.host||event.requestId!==verifyRequest)return;const message=event.message||verifyNotice;if(verifyState===event.state&&verifyNotice===message)return;verifyState=event.state;verifyNotice=message;await render();});
-setInterval(async()=>{if(view!=='companion'||!companionData||busy)return;try{companionData=await api.companionRefresh();companionIssue='';}catch(e){companionIssue=coreIssue(e,Boolean(companionData));}if(view==='companion')renderCompanion();},60000);
+setInterval(()=>{if(view==='companion'&&!busy&&!document.hidden)void refreshMate();},60000);
 
 function manualCommand(h){
  // MCP ile baglanan uygulamalarda cagrilan sey bir skill degil, adi olan yeteneklerdir.

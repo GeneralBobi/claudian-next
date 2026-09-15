@@ -25,7 +25,8 @@ const previewReads = new Set([
   'app:updates','app:copy','app:open','app:obsidian-installed','app:download-obsidian',
   'connector:status','memory:connections','memory:configuration','memory:existing-skill',
   'memory:scan-preview','memory:trigger','memory:activity',
-  'memory:health','memory:notice','setup:cancel','memory:verify-cancel'
+  'memory:health','memory:notice','setup:cancel','memory:verify-cancel',
+  'companion:local-status','companion:local-feedback','companion:local-open-source'
 ]);
 function requirePreviewAccess(name) {
   if (!isolatedPreview && !previewReads.has(name)) {
@@ -114,6 +115,10 @@ async function start() {
     });
   }
   require('./companion-bridge.cjs').attach(handle,session);
+  const localCompanion = new (require('./companion-local.cjs').LocalCompanion)({dataDir:core.dataDir,profile:async()=>(await core.snapshot()).profile});
+  handle('companion:local-status',()=>localCompanion.status());
+  handle('companion:local-feedback',(id,action)=>localCompanion.feedback(id,action));
+  handle('companion:local-open-source',async id=>{const target=await localCompanion.source(id);const error=await shell.openPath(target);if(error)throw Error(error);return true;});
   handle('app:snapshot', async () => ({...await core.snapshot(),appVersion:app.getVersion(),migrationError,setupReview,previewReadOnly:!isolatedPreview}));
   handle('setup:review', async (hosts, consent, withdraw) => {
     const result=await require('./setup-review.cjs').apply(core,hosts,consent,withdraw);

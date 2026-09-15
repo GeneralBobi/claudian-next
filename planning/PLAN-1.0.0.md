@@ -135,3 +135,6 @@ Next uygulama profili ve güncelleme yolu ayrıldı. AI uygulamalarına yazılan
 Dağıtım araştırması, kaynak eşlemesi ve izolasyon uygulaması üç ayrı ajana verildi; kaynak eşlemesi ve izolasyon ajanları birbirinin alanlarını ayrıca inceledi. Ana ajan bulguları birleştirdi. Denetimde bulunan gerçek host dosyalarına dokunma riski işlem kapısıyla; hesap talimatının kesin davranış vaat etmesi TR/EN metin düzeltmesiyle ele alındı. Eski hesap talimatlarının otomatik güncellenmediği açık kaldı.
 
 Protokol yükseltme/çakışma koruması için 9, Next izolasyonu için 6 hedefli kontrol geçti; kaynak sözdizimi kontrol edildi. Gerçek hesap kurulumu, tam ürün test paketi, yükleyici ve yayın yapılmadı. Bu kontroller kolay kurulumun veya sürdürülen ortak hafızanın kullanıcı kabulü değildir.
+## Yol arkadaşı yüzeyi — 15.09 ilk uygulama
+
+Karakterli panel ve gerçek yerel kaynak karşılıkları uygulandı; ayrıntı [yüzey sözleşmesi](COMPANION-SURFACE.md). Mevcut Core odak/kartları önceliklidir. Yerel açık madde göstermek tam bağlam motoru değildir. Öğrenen çift yönlü takip, Core geri bildirim API'si ve gerçek kurulum kabulü açık kalır. Masaüstü kaynak değişikliği yayımlanmadı.

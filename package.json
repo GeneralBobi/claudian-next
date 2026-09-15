@@ -68,7 +68,8 @@
       "memory-capture.cjs",
       "first-review.cjs",
       "web-providers.cjs",
-      "cloud-progress.cjs"
+      "cloud-progress.cjs",
+      "companion-local.cjs"
     ],
     "win": {
       "target": "nsis",

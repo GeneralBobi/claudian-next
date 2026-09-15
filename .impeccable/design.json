@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 2,
+  "narrative": {
+    "rules": [
+      {
+        "section": "colors",
+        "name": "The Existing Identity Rule",
+        "body": "Preserve the orange-dot wordmark and the incumbent dark palette."
+      },
+      {
+        "section": "components",
+        "name": "The Readable State Rule",
+        "body": "Character expression accompanies visible state text; it never substitutes for the error, source or action label."
+      },
+      {
+        "section": "components",
+        "name": "The Scoped Motion Rule",
+        "body": "The user's expressive Loona/Hamroh companion direction authorizes authored character motion only on this companion surface. Preserve the incumbent restriction elsewhere: no authored animation, CSS keyframes or hand-coded motion; any new motion outside this scope needs an approved third-party asset with recorded license and source."
+      }
+    ],
+    "northStar": "Bir asistandan, yol arkadaşına.",
+    "keyCharacteristics": [
+      "Dark tonal surfaces and a warm orange accent.",
+      "Poppins controls paired with Lora reading text.",
+      "Companion expression follows application state and can be paused."
+    ],
+    "donts": [
+      "Don't restore the rejected green/cream identity or invent a separate emblem, typography or palette.",
+      "Don't add decorative gradients, an onboarding hero, statistic tiles or simulated progress.",
+      "Don't imply the companion's contextual reasoning is complete; retain its development status."
+    ],
+    "overview": "The visual authority is the existing claudian.app website and its orange-dot wordmark. The earlier green/cream desktop design was rejected and must not be restored.\r\n\r\nThe companion extends that identity with a geometric screen character and a single contextual message. Its visible expression accompanies readable state text. Local note cues are a limited fallback; this visual system does not establish completed contextual reasoning.",
+    "dos": [
+      "Do brand the application as `claudian.app` with its orange period.",
+      "Do keep source information, readable states, quiet mode and reduced-motion support visible or available.",
+      "Do distinguish detection, configuration and verified access in setup status."
+    ]
+  },
+  "extensions": {
+    "colorMeta": {
+      "foreground": {
+        "displayName": "foreground",
+        "tonalRamp": [
+          "oklch(15% 0.012 85)",
+          "oklch(26% 0.012 85)",
+          "oklch(38% 0.012 85)",
+          "oklch(49% 0.012 85)",
+          "oklch(61% 0.012 85)",
+          "oklch(72% 0.012 85)",
+          "oklch(84% 0.012 85)",
+          "oklch(95% 0.012 85)"
+        ],
+        "role": "neutral"
+      },
+      "divider": {
+        "displayName": "divider",
+        "tonalRamp": [
+          "oklch(15% 0.005 260)",
+          "oklch(26% 0.005 260)",
+          "oklch(38% 0.005 260)",
+          "oklch(49% 0.005 260)",
+          "oklch(61% 0.005 260)",
+          "oklch(72% 0.005 260)",
+          "oklch(84% 0.005 260)",
+          "oklch(95% 0.005 260)"
+        ],
+        "role": "neutral"
+      },
+      "surface": {
+        "displayName": "surface",
+        "tonalRamp": [
+          "oklch(15% 0.005 260)",
+          "oklch(26% 0.005 260)",
+          "oklch(38% 0.005 260)",
+          "oklch(49% 0.005 260)",
+          "oklch(61% 0.005 260)",
+          "oklch(72% 0.005 260)",
+          "oklch(84% 0.005 260)",
+          "oklch(95% 0.005 260)"
+        ],
+        "role": "neutral"
+      },
+      "muted": {
+        "displayName": "muted",
+        "tonalRamp": [
+          "oklch(15% 0.012 85)",
+          "oklch(26% 0.012 85)",
+          "oklch(38% 0.012 85)",
+          "oklch(49% 0.012 85)",
+          "oklch(61% 0.012 85)",
+          "oklch(72% 0.012 85)",
+          "oklch(84% 0.012 85)",
+          "oklch(95% 0.012 85)"
+        ],
+        "role": "neutral"
+      },
+      "primary": {
+        "displayName": "primary",
+        "tonalRamp": [
+          "oklch(15% 0.10 40)",
+          "oklch(26% 0.10 40)",
+          "oklch(38% 0.10 40)",
+          "oklch(49% 0.10 40)",
+          "oklch(61% 0.10 40)",
+          "oklch(72% 0.10 40)",
+          "oklch(84% 0.10 40)",
+          "oklch(95% 0.10 40)"
+        ],
+        "role": "primary"
+      },
+      "companion-secondary": {
+        "displayName": "companion-secondary",
+        "tonalRamp": [
+          "oklch(15% 0.012 85)",
+          "oklch(26% 0.012 85)",
+          "oklch(38% 0.012 85)",
+          "oklch(49% 0.012 85)",
+          "oklch(61% 0.012 85)",
+          "oklch(72% 0.012 85)",
+          "oklch(84% 0.012 85)",
+          "oklch(95% 0.012 85)"
+        ],
+        "role": "neutral"
+      },
+      "background": {
+        "displayName": "background",
+        "tonalRamp": [
+          "oklch(15% 0.005 260)",
+          "oklch(26% 0.005 260)",
+          "oklch(38% 0.005 260)",
+          "oklch(49% 0.005 260)",
+          "oklch(61% 0.005 260)",
+          "oklch(72% 0.005 260)",
+          "oklch(84% 0.005 260)",
+          "oklch(95% 0.005 260)"
+        ],
+        "role": "neutral"
+      },
+      "secondary-surface": {
+        "displayName": "secondary-surface",
+        "tonalRamp": [
+          "oklch(15% 0.005 260)",
+          "oklch(26% 0.005 260)",
+          "oklch(38% 0.005 260)",
+          "oklch(49% 0.005 260)",
+          "oklch(61% 0.005 260)",
+          "oklch(72% 0.005 260)",
+          "oklch(84% 0.005 260)",
+          "oklch(95% 0.005 260)"
+        ],
+        "role": "neutral"
+      }
+    },
+    "motion": [
+      {
+        "purpose": "Calm eye blink; quiet and reduced-motion stop animation.",
+        "name": "companion-blink",
+        "value": "7s infinite"
+      },
+      {
+        "purpose": "Real pending request.",
+        "name": "companion-wait",
+        "value": "1.6s ease-in-out infinite"
+      },
+      {
+        "purpose": "One response to an action.",
+        "name": "companion-acknowledgement",
+        "value": ".6s ease-out 1"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "companion-compact",
+        "value": "740px"
+      }
+    ],
+    "shadows": [
+      {
+        "purpose": "Soft shadow under the geometric face only.",
+        "name": "companion-grounding",
+        "value": "0 18px 35px #0005"
+      }
+    ]
+  },
+  "generatedAt": "2026-09-15T15:59:47.1876326Z",
+  "components": [
+    {
+      "css": ".ds-primary{font:600 12px Poppins,sans-serif;padding:10px 17px;border-radius:6px;border:1px solid #33333b;min-height:40px;cursor:pointer;background:var(--orange,#d97757);color:var(--bg,#0e0e10)}.ds-primary:hover{border-color:var(--orange,#d97757)}.ds-primary:focus-visible{outline:2px solid var(--orange,#d97757);outline-offset:4px}",
+      "html": "<button class=\"ds-primary\">Continue</button>",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Established primary action.",
+      "name": "Primary button"
+    },
+    {
+      "css": ".ds-action{font:600 12px Poppins,sans-serif;padding:10px 17px;border-radius:6px;border:1px solid #33333b;min-height:40px;cursor:pointer;background:#1c1c21;color:var(--text,#f2f0eb)}.ds-action:hover{border-color:var(--orange,#d97757)}.ds-action:focus-visible{outline:2px solid var(--orange,#d97757);outline-offset:4px}",
+      "html": "<button class=\"ds-action\">Open note</button>",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Open, defer, hide or refresh a cue.",
+      "name": "Companion action"
+    },
+    {
+      "kind": "input",
+      "css": ".ds-field{background:var(--surface,#16161a);color:var(--text,#f2f0eb);border:1px solid #33333b;padding:9px 10px;border-radius:4px;font:11px Poppins,sans-serif}.ds-field:focus-visible{outline:2px solid var(--orange,#d97757);outline-offset:4px}",
+      "name": "Text field",
+      "description": "Existing text field, excluding the incomplete companion password variant.",
+      "html": "<input class=\"ds-field\" aria-label=\"Folder\" placeholder=\"Folder\">"
+    },
+    {
+      "kind": "nav",
+      "css": ".ds-nav{display:flex;gap:8px}.ds-nav button{font:600 12px Poppins,sans-serif;padding:10px 17px;border-radius:6px;border:1px solid #33333b;min-height:40px;cursor:pointer;background:none;color:var(--muted,#8d8a83);border:0}.ds-nav .ds-active{background:var(--surface,#16161a);color:var(--text,#f2f0eb)}.ds-nav button:hover{border-color:var(--orange,#d97757)}.ds-nav button:focus-visible{outline:2px solid var(--orange,#d97757);outline-offset:4px}",
+      "name": "Navigation",
+      "description": "Panel tabs with an active tonal surface.",
+      "html": "<nav class=\"ds-nav\"><button class=\"ds-active\">Companion</button><button>Memory</button></nav>"
+    },
+    {
+      "kind": "card",
+      "css": ".ds-card{padding:20px;background:var(--surface,#16161a);color:var(--text,#f2f0eb);border:1px solid var(--line,#26262c);border-radius:6px;font:13px Poppins,sans-serif}",
+      "name": "Card",
+      "description": "Existing desktop tonal container.",
+      "html": "<div class=\"ds-card\">Connection details</div>"
+    },
+    {
+      "kind": "custom",
+      "css": ".ds-face{width:240px;height:195px;background:#1c1c21;border:2px solid #46464e;border-radius:48px;box-shadow:0 18px 35px #0005;display:grid;place-content:center;gap:24px}.ds-eyes{display:flex;gap:36px}.ds-eyes i{width:27px;height:12px;background:#f2f0eb;border-radius:20px}.ds-mouth{width:20px;height:6px;background:#d97757;border-radius:6px;justify-self:center}",
+      "name": "Companion face",
+      "description": "Original geometric character; quiet expression preview.",
+      "html": "<div class=\"ds-face\" role=\"img\" aria-label=\"Quiet companion\"><div class=\"ds-eyes\"><i></i><i></i></div><div class=\"ds-mouth\"></div></div>"
+    }
+  ],
+  "title": "Design System: claudian.app desktop"
+}
