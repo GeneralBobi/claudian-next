@@ -108,9 +108,9 @@ Süre tahmini kararlar kapanmadan verilmez. Yeni öneri hedefi değiştiriyorsa 
 | K1/K2 | Yerel Claude referansı; ortak uzak entegrasyon; yüzey matrisi yazıldı | Genel dizin onayı, boş hesap kurulumları, Gemini/Perplexity dağıtımı |
 | K3/K4 | Mevcut genel store + ortak araçlar; yerel/uzak erişim aynı davranışa bağlı | Ortak servis kimliğiyle kullanıcı-cihaz eşlemesi ve eski bağlantı geçişi |
 | K5 | Erişim yoksa ilk yanıtta kısa bildirim; kaynak metinleri düzeltildi | Eski hesap talimatının güncellenmesi, araç yokken canlı davranış |
-| K6 | İzin, kurulum, araç görünürlüğü, okuma, yazma, ilk tarama ayrı kanıt | Eski test sonucunun yeni klasörde/başka bağlantıda geçersizliği ve engelli yazma UI kabulü |
+| K6 | İzin, kurulum, araç görünürlüğü, okuma, yazma, ilk tarama ayrı kanıt; test klasör/izin/protokol/süre sınırı kaynakta düzeltildi | Engelli yazma UI kabulü ve gerçek klasör değişimi boyunca tüm bağlantıların geçişi |
 | K7 | Bilgisayar açıkken aynı vault'a mobil erişim | Gerçek telefon kabulü; bilgisayar kapalı kullanım ayrı maliyet/veri kararı |
-| K8 | Seçici hafıza korunur; zorunlu her-tur operasyonel muhasebe ortak varsayılan olmaz | Adaptör/hook bağımlılıklarını güvenle ayırma ve davranış/maliyet karşılaştırması |
+| K8 | Seçici hafıza korunur; runtime/hook/skill yönergelerinde operasyonel tur kaydı isteğe bağlı yapıldı | Kurulu adaptörlere sürümlü geçiş ve canlı davranış/maliyet karşılaştırması |
 | K9 | Next kimlik/profil/kaldırıcı/güncelleme ayrımı kaynakta uygulandı | Ortak host dosyası sahipliği, geçiş ve iki kurulum kabulü |
 
 **Bir sonraki geliştirme dilimi:** Claude Desktop paketinin temiz kurulum yolu ile host dosyası sahipliğini birlikte tamamla. Klasör seçimi → hazırlanmış paket → sağlayıcı onayı → gerçek okuma/yazma → başka AI'da aynı bilginin kullanımı. Yol/JSON/terminal yazdıran akış geçmez. Önce mevcut paketleme kodundaki açığı kapat; yeni kurulum mekanizması yalnız somut gereksinimle eklenir.
@@ -138,3 +138,11 @@ Protokol yükseltme/çakışma koruması için 9, Next izolasyonu için 6 hedefl
 ## Yol arkadaşı yüzeyi — 15.09 ilk uygulama
 
 Karakterli panel ve gerçek yerel kaynak karşılıkları uygulandı; ayrıntı [yüzey sözleşmesi](COMPANION-SURFACE.md). Mevcut Core odak/kartları önceliklidir. Yerel açık madde göstermek tam bağlam motoru değildir. Öğrenen çift yönlü takip, Core geri bildirim API'si ve gerçek kurulum kabulü açık kalır. Masaüstü kaynak değişikliği yayımlanmadı.
+
+## 23.55 devamı — 16.09 kaynak teslimi
+
+- [x] Zorunlu her-tur operasyonel kayıt varsayılandan ayrıldı; runtime, hook ve TR/EN skill yönergeleri uyumlu. [K8 ayrıntısı](K8-OPTIONAL-REVIEW.md).
+- [x] Eski bağlantı testinin başka klasör/izin/protokol için güncel kanıt sayılması engellendi. [Kapsam ve kalan yarış sınırı](VERIFICATION-SCOPE.md).
+- [ ] Öncelikli devam: ortak host dosyası sahipliği, profil yazarları için ortak eşzamanlılık koruması ve Claude Desktop hazır paket akışı.
+- [ ] Yol arkadaşı: gerçek bağlam değerlendirmesi ve Core'a çift yönlü geri bildirim.
+- [ ] Genel uzak dağıtım ve sürümlü geçiş, ardından kullanıcının yapacağı uçtan uca kabul. Bu tur hesap/kurulum testi veya yayın yapılmadı.

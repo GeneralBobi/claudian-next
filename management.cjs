@@ -262,7 +262,7 @@ module.exports = (Setup, {HOSTS, hash, assertOrdinaryPath, json, atomicJson, exi
     const maintenance=await require('./memory-runtime.cjs').status(this.dataDir);
     const hosts = profile.hosts.map(host => {
       let state = 'unverified';
-      if (host.verifiedAt) state = (host.verifiedProtocol === profile.protocolVersion && host.verifiedVault === profile.vault) ? 'verified' : 'stale';
+      if (host.verifiedAt) state = (!vaultMissing && profile.access === 'write' && host.verifiedProtocol === profile.protocolVersion && host.verifiedVault === profile.vault) ? 'verified' : 'stale';
       return {id: host.id, label: host.label, verifiedAt: host.verifiedAt || null, state, maintenance:maintenance.find(m=>m.host===host.id)||null};
     });
     const verifiedCount = hosts.filter(h => h.state === 'verified').length;

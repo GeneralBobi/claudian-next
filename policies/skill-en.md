@@ -83,7 +83,7 @@ Interaction behaviour the user explicitly adopted or rejected may be recorded in
 
 With MCP connected, use its write tools: `capture` to keep one durable fact without choosing a file (the application places it by role, heading and date format); `write_note` for a new note; `patch_note` or `append_note` with a current SHA-256; `archive_note` for reversible retirement. Never bypass a refused write with a file tool. Do not claim that archiving satisfies a permanent deletion request.
 
-Use the session and turn identifiers a lifecycle hook supplies. Without hooks, call `begin_memory_turn` on each user turn and keep one session identifier throughout. After maintenance and before the visible answer, call `memory_review`: UPDATED with real receipt identifiers, NO_OP when nothing belongs in memory, FAILED when valuable maintenance could not be completed.
+Assess durable information on each user turn. `begin_memory_turn` and `memory_review` are optional diagnostic tools, not prerequisites for replies or note operations. No tool call is required when nothing changes. When diagnostics are used, use the session and turn identifiers the hook supplies; without a hook, begin a turn with one session identifier. Review outcomes are UPDATED with real receipt identifiers, NO_OP when nothing durable changed, or FAILED when valuable maintenance could not be completed.
 
 ## Silence and reporting
 

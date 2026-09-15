@@ -26,6 +26,32 @@ test('provider memory pointer carries no personal location and does not claim ac
  const {memoryTrigger}=require('../policy.cjs');for(const lang of ['tr','en']){const s=memoryTrigger(lang);assert.match(s,/startup_context/);assert.doesNotMatch(s,/Boran|SecondBrain|Desktop|Kled/);assert.ok(s.length<1500);}
 });
 
+test('completed proof cannot certify a changed folder, permission, protocol or expired request',async t=>{
+ const root=await fs.mkdtemp(path.join(os.tmpdir(),'claudian-proof-scope-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));
+ const home=path.join(root,'home'),dataDir=path.join(root,'data'),vault=path.join(root,'vault');await fs.mkdir(home);
+ const core=new MemorySetup({home,dataDir});await core.install((await core.prepare({name:'Test',vault,mode:'new',storage:'markdown',hosts:['claude-code'],access:'write',language:'en'})).id,true);
+ await core.challenge('claude-code');const original=(await core.snapshot()).profile;
+ await fs.writeFile(original.hosts[0].challenge.output,original.hosts[0].challenge.nonce);
+ assert.equal((await core.verify('claude-code')).verified,true);
+ const proven=(await core.snapshot()).profile;
+ const active=probe.active;
+ try{
+  probe.active=async(...args)=>{const result=await active(...args);const changed=structuredClone(result.profile);changed.access='read';await fs.writeFile(core.configFile,JSON.stringify(changed));return result;};
+  assert.equal((await core.verify('claude-code')).verified,false);
+  assert.equal((await core.snapshot()).profile.access,'read','verification must not overwrite a concurrent permission change');
+ }finally{probe.active=active;await fs.writeFile(core.configFile,JSON.stringify(proven));}
+ const other=path.join(root,'other');await fs.mkdir(other);
+ for(const change of [p=>p.vault=other,p=>p.access='read',p=>p.protocolVersion='changed',p=>p.hosts[0].challenge.issuedAt=new Date(Date.now()-31*60*1000).toISOString(),p=>p.hosts[0].challenge.output=path.join(root,'outside.md')]){
+  const p=structuredClone(proven);change(p);await fs.writeFile(core.configFile,JSON.stringify(p));
+  assert.equal((await core.verify('claude-code')).verified,false);
+  assert.equal((await core.snapshot()).profile.hosts[0].verifiedVault,vault);
+ }
+ for(const change of [p=>p.vault=other,p=>p.access='read',p=>p.protocolVersion='changed']){
+  const p=structuredClone(proven);change(p);await fs.writeFile(core.configFile,JSON.stringify(p));
+  assert.equal((await core.health()).hosts[0].state,'stale');
+ }
+});
+
 // Generated for the connection it belongs to. The generic form must never carry a path; the
 // form generated for a real connection is expected to, because naming the folder is what stops
 // the model guessing an old one.

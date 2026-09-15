@@ -6,6 +6,7 @@ async function active(dataDir,vault,actor){
  const profile=JSON.parse(await fs.readFile(profileFile,'utf8'));
  const c=profile.hosts?.find(h=>h.id===actor)?.challenge;
  if(path.resolve(profile.vault)!==path.resolve(vault)||!c)throw Error('No active test for this connection.');
+ if(c.protocolVersion!==profile.protocolVersion)throw Error('Connection test configuration changed. Start a new test in Claudian.');
  const age=Date.now()-Date.parse(c.issuedAt);
  if(!Number.isFinite(age)||age<0||age>30*60*1000)throw Error('Connection test expired. Start a new test in Claudian.');
  const basename=path.basename(c.input);
@@ -16,6 +17,7 @@ async function active(dataDir,vault,actor){
  if(digest(content)!==c.inputHash)throw Error('Test input changed. Start a new test.');
  return {profile,c,content};
 }
+exports.active=active;
 exports.read=async(dataDir,vault,actor)=>{const {c,content}=await active(dataDir,vault,actor);return {test_id:path.basename(c.input),content};};
 exports.submit=async(dataDir,vault,actor,args)=>{
  const {profile,c}=await active(dataDir,vault,actor);

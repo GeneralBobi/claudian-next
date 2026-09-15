@@ -83,7 +83,7 @@ Kullanıcının açıkça benimsediği ya da reddettiği etkileşim davranışı
 
 MCP bağlıyken yazma araçlarını kullan: dosya seçmeden tek bir kalıcı bilgiyi tutmak için `capture` (uygulama rolüne, başlığına ve tarih biçimine göre yerleştirir); yeni not için `write_note`; güncel SHA-256 ile `patch_note` veya `append_note`; geri alınabilir kaldırma için `archive_note`. Reddedilen bir yazmayı dosya aracıyla aşma. Arşivlemenin kalıcı silme talebini karşıladığını iddia etme.
 
-Bir yaşam döngüsü kancası varsa verdiği oturum ve tur kimliğini kullan. Kanca yoksa her kullanıcı turunda `begin_memory_turn` çağır ve oturum boyunca tek kimliği koru. Bakımdan sonra ve görünür cevaptan önce `memory_review` çağır: gerçek makbuz kimlikleriyle UPDATED, hafızaya girecek bir şey yoksa NO_OP, kayda değer bakım tamamlanamadıysa FAILED.
+Kalıcı bilgiyi her kullanıcı turunda değerlendir. `begin_memory_turn` ve `memory_review` isteğe bağlı tanılama araçlarıdır; yanıt veya not yazma için ön koşul değildir. Değişiklik gerekmiyorsa araç çağrısı gerekmez. Tanılama kullanılıyorsa kancanın verdiği oturum ve tur kimliğini kullan; kanca yoksa tek oturum kimliğiyle tur aç. İnceleme sonucu gerçek makbuz kimlikleriyle UPDATED, kalıcı değişiklik yoksa NO_OP, kayda değer bakım tamamlanamadıysa FAILED olur.
 
 ## Sessizlik ve bildirme
 

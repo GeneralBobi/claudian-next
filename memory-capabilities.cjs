@@ -22,7 +22,7 @@ function capabilities(vault, notice, options={}) {
     tool('submit_connection_test','write','Submit the value read from this host test. Creates only its dedicated response; never edits user notes.',schema({test_id:string,value:string},['test_id','value']),args=>require('./connection-test.cjs').submit(dataDir,vault,actor,args)),
     tool('startup_context','read','Load shared memory and its protocol at conversation start, including greetings.',schema({topic:string}),
       ({topic})=>runtime.context(vault,topic,options.access||'read',options.language||'en',actor)),
-    tool('begin_memory_turn','read','For hosts WITHOUT a prompt hook: begin each user turn, reusing one session_id throughout this conversation. Hook-managed hosts must use the supplied turn.',schema({session_id:string}),
+    tool('begin_memory_turn','read','Optional maintenance diagnostics: begin a tracked turn, reusing one session_id throughout this conversation. Not required for normal answers or note operations. When a diagnostic hook supplies a turn, use that turn.',schema({session_id:string}),
       ({session_id})=>{const session=session_id||require('node:crypto').randomUUID();return runtime.exclusive(dataDir,session,()=>runtime.begin(dataDir,session,actor));},true),
     tool('memory_review','read','Record completed maintenance for the current turn. UPDATED needs committed receipt IDs; NO_OP means nothing durable changed. This records operational metadata, not a user note.',
       schema({session_id:string,turn:{type:'integer',minimum:1},outcome:{type:'string',enum:['NO_OP','UPDATED','FAILED']},receipts:{type:'array',items:string}},['session_id','turn','outcome']),

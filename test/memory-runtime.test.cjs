@@ -29,8 +29,8 @@ test('junction reads and writes never reach an external folder',async t=>{
   await assert.rejects(store.mutate(vault,{operation:'create',note:'linked/new',body:'x',reason:'Test'}),/links|junctions/);
   assert.deepEqual(await store.list(vault),[]);
 });
-test('forty turns remain checked; a late missing review is detected without an infinite stop loop',async t=>{
-  const {vault,data}=await fixture(t),profile={vault,access:'write'};
+test('explicit legacy review mode: forty turns remain checked; a late missing review is detected without an infinite stop loop',async t=>{
+  const {vault,data}=await fixture(t),profile={vault,access:'write',maintenanceReviewRequired:true};
   for(let turn=1;turn<=40;turn++){
     const start=await hook.run({session_id:'long-session',hook_event_name:'UserPromptSubmit'},data,profile);
     assert.match(start.hookSpecificOutput.additionalContext,new RegExp(`turn ${turn}`));
@@ -66,8 +66,8 @@ test('startup returns constraints and open loops, and marks large required notes
  assert.equal(context.notes.find(n=>n.note==='Reminders.md').body,'Content of Reminders.md');
  assert.deepEqual(context.missing,[]);
 });
-test('a long running turn receives a checkpoint without waiting for a final answer',async t=>{
- const {vault,data}=await fixture(t),profile={vault};
+test('explicit legacy review mode: a long running turn receives a checkpoint without waiting for a final answer',async t=>{
+ const {vault,data}=await fixture(t),profile={vault,maintenanceReviewRequired:true};
  await hook.run({session_id:'long-task',hook_event_name:'UserPromptSubmit'},data,profile);
  for(let n=1;n<=12;n++){
    const output=await hook.run({session_id:'long-task',hook_event_name:'PostToolUse',tool_name:'Bash'},data,profile);
@@ -86,8 +86,8 @@ test('deleting the vault protocol leaves an application protocol and keeps perso
  const next=await runtime.context(vault);assert.equal(next.vaultProtocol.body,customized);
  assert.equal(next.protocol.source,'application');
 });
-test('an early review cannot cover a later long-task checkpoint',async t=>{
- const {vault,data}=await fixture(t),profile={vault};
+test('explicit legacy review mode: an early review cannot cover a later long-task checkpoint',async t=>{
+ const {vault,data}=await fixture(t),profile={vault,maintenanceReviewRequired:true};
  await hook.run({session_id:'checkpoint',hook_event_name:'UserPromptSubmit'},data,profile);
  await runtime.review(data,{session_id:'checkpoint',turn:1,outcome:'NO_OP'},'claude-code',vault);
  for(let n=0;n<12;n++)await hook.run({session_id:'checkpoint',hook_event_name:'PostToolUse',tool_name:'Bash'},data,profile);

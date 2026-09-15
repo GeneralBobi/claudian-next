@@ -6,7 +6,7 @@ async function runUnlocked(event, dataDir, profile, host='claude-code') {
   if(!event.session_id||!profile?.vault)return {};
   const hook=event.hook_event_name;
   if(hook==='UserPromptSubmit') {
-    const state=await runtime.begin(dataDir,event.session_id,host);
+    const state=await runtime.begin(dataDir,event.session_id,host,{reviewRequired:true});
     if(profile.language==='tr')return {hookSpecificOutput:{hookEventName:hook,additionalContext:
       `[Claudian hafıza turu ${state.turn}] Oturum: ${state.session}. Seçili vault: ${profile.vault}. Kapsam: ${profile.access||'read'}.
 ${state.turn===1?'Cevap vermeden önce startup_context çağır.':'Aynı ortak hafıza protokolünü sürdür; konu veya karar değiştiyse ilgili notları yeniden kontrol et.'}
@@ -44,6 +44,19 @@ Before writing ANY user-visible response text, silently complete necessary memor
 }
 async function run(event,dataDir,profile,host='claude-code'){
  if(!event.session_id||!profile?.vault)return {};
+ if(profile.maintenanceReviewRequired!==true) {
+  if(event.hook_event_name!=='UserPromptSubmit')return {};
+  return runtime.exclusive(dataDir,event.session_id,async()=>{
+   const state=await runtime.load(dataDir,event.session_id);
+   if(state.host&&state.host!==host)throw Error('This session belongs to a different connection.');
+   if(state.startupPrompted)return {};
+   state.host=host;state.startupPrompted=true;state.reviewRequired=false;
+   await runtime.save(dataDir,state);
+   return {hookSpecificOutput:{hookEventName:'UserPromptSubmit',additionalContext:profile.language==='tr'
+    ? 'Claudian: İlk yanıttan önce startup_context ile seçili hafızayı hazırla. Erişemiyorsan kısaca bildir. Sohbet boyunca kalıcı karar, düzeltme ve taahhütleri değerlendir; gerekliyse izinler ve protokole göre kaydet ve doğrula. Başarılı bakım sessizdir. Değişiklik yoksa araç çağrısı gerekmez; begin_memory_turn ve memory_review isteğe bağlıdır, yanıtı engellemez.'
+    : 'Claudian: Before the first reply, initialize the selected memory with startup_context. Report unavailable access briefly. Assess durable decisions, corrections and commitments throughout the conversation; save and verify when needed under permissions and protocol. Successful maintenance is silent. No tool call is needed when nothing changed; begin_memory_turn and memory_review are optional and do not gate the reply.'}};
+  });
+ }
  return runtime.exclusive(dataDir,event.session_id,()=>runUnlocked(event,dataDir,profile,host));
 }
 if(require.main===module){

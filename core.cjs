@@ -471,7 +471,7 @@ class MemorySetup {
     const output = input.replace(/\.md$/, '-response.md');
     const h = profile.hosts.find(h => h.id === host);
     // Preserve earlier tests; never delete a note merely because it has a test-like name.
-    h.challenge = { input, output, nonce, inputHash: hash(await fs.readFile(input)), issuedAt: new Date().toISOString() };
+    h.challenge = { input, output, nonce, inputHash: hash(await fs.readFile(input)), issuedAt: new Date().toISOString(), protocolVersion: profile.protocolVersion };
     await atomicJson(this.configFile, profile);
     const quote = value => `"${value}"`;
     const say = profile.language === 'tr'
@@ -485,8 +485,15 @@ class MemorySetup {
   }
   async verify(host) {
     const profile = await json(this.configFile); const h = profile?.hosts.find(h => h.id === host);
+    const originalProfile = JSON.stringify(profile);
     if (!h?.challenge) throw new Error('Önce test yönergesini oluşturun.');
     const c = h.challenge;
+    if(profile.access!=='write')return {verified:false,message:'Yazma izni değişmiş. İzni düzenledikten sonra yeni test başlatın.'};
+    try {
+      const active = await require('./connection-test.cjs').active(this.dataDir,profile.vault,host);
+      if(JSON.stringify(active.profile)!==originalProfile)return {verified:false,message:'Bağlantı ayarları değişti. Yeni test başlatın.'};
+    }
+    catch { return {verified:false,message:'Bu test artık geçerli değil veya test dosyasına erişilemiyor. Yeni test başlatın.'}; }
     await assertOrdinaryPath(c.input);
     if(hash(await fs.readFile(c.input))!==c.inputHash)return {verified:false,message:'Test dosyası değişmiş. Yeni test başlatın.'};
     await assertOrdinaryPath(c.output);
@@ -497,6 +504,7 @@ class MemorySetup {
       const receipt=await json(path.join(this.dataDir,'connection-receipts',path.basename(c.input)+'.json'));
       if(receipt?.inputHash!==c.inputHash||receipt?.host!==host)return {verified:false,message:'Bu web bağlantısından MCP yanıtı bekleniyor; dosya yanıtı tek başına yeterli değil.'};
     }
+    if(JSON.stringify(await json(this.configFile))!==originalProfile)return {verified:false,message:'Bağlantı ayarları değişti. Yeni test başlatın.'};
     h.status = 'verified'; h.verifiedAt = new Date().toISOString();
     h.verifiedProtocol = profile.protocolVersion; h.verifiedVault = profile.vault;
     await atomicJson(this.configFile, profile);
