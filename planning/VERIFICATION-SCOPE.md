@@ -6,4 +6,4 @@ Durum ekranı klasör kayıpken veya erişim salt okunura değişmişken geçmi�
 
 Hedefli regresyon: geçerli cevap; değişen klasör/izin/protokol; süresi dolmuş istek; dış yanıt yolu; doğrulama esnasındaki izin değişimi. Bunlar geçici test klasöründe çalıştırıldı; gerçek hesap kabulü yapılmadı.
 
-Açık sınır: son profil karşılaştırması ve atomik dosya yenilemesi bütün süreçlerle ortak bir transaction değildir. Tüm profil yazarlarının ortak kilit veya sürüm denetimi kullanması, host sahipliği ve klasör geçişi çalışmasının parçası olarak tamamlanmalıdır. Bu dilim gerçek klasör geçişinin tamamlandığı anlamına gelmez.
+16.09 devamında `MemorySetup` profil yazarları ortak reentrant kilide bağlandı; bkz. [profil değişiklikleri](PROFILE-MUTATIONS.md). Kilide katılmayan harici yazıcılar ve farklı profillerin ortak host dosyaları hâlâ ayrı sınırdır. Gerçek klasör geçişi kabulü tamamlanmış sayılmaz.

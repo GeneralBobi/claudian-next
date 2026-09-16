@@ -66,12 +66,12 @@ test('Claude Desktop reads its configuration from its own folder', () => {
 
 // Kurulum duzeyinde: bir MCP konagi skill dosyasi ve baslangic kurali yolunu hic
 // kullanmaz. Ona bir skill yazmak, okumayacagi bir dosyayi diske birakmak olurdu.
-test('installing an MCP host writes a connection and no skill files', async t => {
+test('legacy MCP host writes a connection and no skill files', async t => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'claudian-mcp-host-'));
   t.after(() => fs.rm(root, {recursive: true, force: true}));
   const home = path.join(root, 'home');
   await fs.mkdir(home);
-  const core = new MemorySetup({home, dataDir: path.join(root, 'data'),
+  const core = new MemorySetup({home, legacy:true, dataDir: path.join(root, 'data'),
     launcher: 'C:/App/Claudian.exe', mcpScript: 'C:/App/mcp-server.cjs'});
   const input = {name: 'Deniz', vault: path.join(root, 'notes'), mode: 'new',
     storage: 'obsidian', hosts: ['claude-desktop'], language: 'en', access: 'write'};

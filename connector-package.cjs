@@ -38,7 +38,7 @@ async function write(directory,options) {
 }
 function desktopEntries({launcher,mcpScript,dataDir,version=require('./package.json').version,language='en'}) {
   for(const value of [launcher,mcpScript,dataDir])if(typeof value!=='string'||!path.isAbsolute(value)||/[\x00-\x1f]/.test(value))throw Error('Absolute installation paths are required');
-  const manifest={manifest_version:'0.3',name:'claudian-memory',display_name:'Claudian Core',version,
+  const manifest={manifest_version:'0.3',name:'claudian-next-memory',display_name:'Claudian Next',version,
     description:language==='tr'?'Claudian uygulamasında seçtiğin ortak hafızayı kullanır.':'Use the shared memory selected in your Claudian application.',
     author:{name:'Claudian'},tools_generated:true,compatibility:{platforms:['win32']},
     server:{type:'node',entry_point:'server.cjs',mcp_config:{command:'node',args:['${__dirname}/server.cjs']}}};
@@ -74,7 +74,7 @@ module.exports.desktopStatus=async(home,dataDir,installation)=>{
   const base=path.join(root,'Claude Extensions',dir.name);
   try{
    const manifest=JSON.parse(await fs.readFile(path.join(base,'manifest.json'),'utf8'));
-   if(manifest.name!=='claudian-memory')continue;
+   if(manifest.name!=='claudian-next-memory')continue;
    const settings=await fs.readFile(path.join(root,'Claude Extensions Settings',dir.name+'.json'),'utf8').then(JSON.parse).catch(()=>null);
    const enabled=settings?.isEnabled===true;
    let bound=false;

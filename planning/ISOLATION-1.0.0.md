@@ -1,6 +1,6 @@
 # 1.0.0 geliştirme ayrımı — K9 ilk adım
 
-Durum: kaynak değişikliği, `1.0.0-alpha.1`; yayın veya canlı kurulum değildir.
+Durum: `1.0.0-alpha.2`; yerel Windows paketi üretildi, yayın veya canlı kurulum kabulü değildir. Aşağıdaki genel mutasyon kapısının artık yalnız Claude Desktop yerel akışı için dar istisnası vardır: [akış sözleşmesi](LOCAL-CLAUDE-ALPHA2.md).
 
 ## Uygulanan sınır
 

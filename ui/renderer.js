@@ -54,7 +54,13 @@ function webHostCard(h){
  else {body=`<h3>${title}</h3><p>${t('We will open the right settings and prepare the values for you. This window will guide you one step at a time.','Doğru ayarları açıp gereken bilgileri hazırlayacağız. Bu pencere seni tek adımla ilerletecek.')}</p><p>${h.id==='gemini'?t('Requires Spark custom apps in your Gemini account.','Gemini hesabında Spark özel uygulamaları bulunmalı.'):h.id==='perplexity'?t('Requires custom connectors; not offered in every account.','Özel bağlantı ekleme özelliği gerekiyor; her hesapta sunulmuyor.'):t('Requires the option to create a custom app in ChatGPT.','ChatGPT hesabında özel uygulama oluşturma seçeneği gerekiyor.')}</p>${btn('Start setup','Kuruluma başla','cloud-begin',true,host)}`;}
  return `<div class="connection cloud-wizard"><ol class="connection-steps" aria-label="${t('Connection progress','Bağlantı ilerlemesi')}">${[[p.phase==='authorizing'||p.phase==='loading'||p.canTest,t('Account permission','Hesap izni')],[p.canTest,t('Tools available','Araçlar hazır')],[verified,t('Access verified','Erişim doğrulandı')]].map(([done,label],i)=>`<li data-complete="${done===true}"><span class="step-symbol">${done?checkIcon:i+1}</span>${label}</li>`).join('')}</ol><section class="setup-current" aria-live="polite">${body}</section><details><summary>${t('Help and connection settings','Yardım ve bağlantı ayarları')}</summary><p>${t('Keep Claudian and this computer running. A saved app or permission alone is not proof of access.','Claudian ve bu bilgisayar açık kalsın. Uygulamanın kaydedilmesi veya izin verilmesi erişim kanıtı değildir.')}</p>${btn('Get step-by-step help from AI','AI’dan adım adım yardım al','connector-help',false,host)}${action('Start the guide again','Kurulum rehberini baştan aç','start',false)}${p.canTest?btn('Open settings','Ayarları aç','connector-provider',false,host):''}${h.id==='gemini'?btn('Use Gemini with manually shared content','Gemini’yi elle paylaşılan içerikle kullan','gemini-web-guide'):''}${memoryRow(h)}</details></div>`;
 }
+function desktopSetupCard(h){
+ const extension=h.extension||remoteStatus?.desktopExtension||{},ready=extension.current===true;
+ const installed=extension.installed?extension.enabled?t('Update needed','Güncelleme gerekli'):t('Enable the extension in Claude','Claude içinde eklentiyi etkinleştir'):t('Connect Claude Desktop','Claude Desktop’ı bağla');
+ return `<section class="connection"><h2>Claude Desktop</h2>${connectionSteps(h)}<p class="${ready?'health-ok':'health-warn'}">${ready?checkIcon+t('Extension ready. Now verify access in Claude.','Eklenti hazır. Şimdi Claude içinde erişimi doğrula.'):installed}</p>${ready?'':`<p>${t('Claudian prepares the correct package for your selected memory. Drop it into Claude, then approve installation. You do not need to enter a folder path.','Claudian seçili hafızan için doğru paketi hazırlar. Paketi Claude’a bırak, ardından kurulumu onayla. Klasör yolu yazman gerekmez.')}</p>${btn('Prepare and open Claude','Hazırla ve Claude’u aç','connector-desktop-install',true)}${extensionArchive?`<p><button type="button" draggable="true" data-desktop-package>${t('Drag Claudian Next into Claude','Claudian Next’i Claude’a sürükle')}</button></p><details><summary>${t('If dragging is unavailable','Sürükleyemiyorsan')}</summary><p>${t('Show the prepared file, then select it in Claude → Settings → Extensions → Advanced settings → Install Extension.','Hazırlanan dosyayı göster; ardından Claude → Ayarlar → Eklentiler → Gelişmiş ayarlar → Eklenti yükle içinden seç.')}</p>${btn('Show prepared file','Hazır dosyayı göster','connector-desktop-reveal')}</details>`:''}`}${ready?verifyRow(h)+firstScanRow(h):''}<p>${t('This connects Claude Desktop on this computer. Web and mobile access are separate. An older Claudian connection stays untouched; use Claudian Next for this preview.','Bu bağlantı bu bilgisayardaki Claude Desktop içindir. Web ve mobil erişim ayrıdır. Eski Claudian bağlantısı korunur; bu önizleme için Claudian Next’i kullan.')}</p></section>`;
+}
 function remoteHostCard(h){
+ if(h.artifacts?.route==='desktop-extension')return desktopSetupCard(h);
  if(['chatgpt','gemini','perplexity'].includes(h.id))return webHostCard(h);
  const url=remoteStatus?.urls?.[h.id];
  const grants=(remoteStatus?.grants||[]).filter(g=>g.host===h.id&&!g.revoked);
@@ -225,7 +231,7 @@ function renderSetup(){
 async function renderPanel(){const p=state.profile;
  if(!p&&state.previewReadOnly){
   if(view==='companion'){renderCompanion();return;}
-  content.innerHTML=`<h1>${t('Claudian Next preview','Claudian Next önizlemesi')}</h1><p>${t('This preview has no memory folder or AI connections configured. Safe installation and migration are still being prepared. You can view the companion panel from the navigation above.','Bu önizlemede hafıza klasörü veya AI bağlantısı kurulmadı. Güvenli kurulum ve geçiş hazırlanıyor. Yukarıdaki Yol arkadaşı sekmesinden paneli inceleyebilirsin.')}</p>`;return;
+  content.innerHTML=`<h1>${t('Claudian Next preview','Claudian Next önizlemesi')}</h1><p>${t('This preview has no memory folder or AI connections configured. Claude Desktop local setup is available below. Other AI connections and migration are still being prepared.','Bu önizlemede hafıza klasörü veya AI bağlantısı kurulmadı. Claude Desktop yerel kurulumu aşağıdan başlatılabilir. Diğer AI bağlantıları ve geçiş hazırlanıyor.')}</p>${btn('Connect Claude Desktop','Claude Desktop’ı bağla','start-local-setup',true)}`;return;
  }
  if(!p)throw new Error('Memory is not configured.');
  if(view==='companion'){renderCompanion();return;}
@@ -268,7 +274,7 @@ async function renderNow(){
  const preserve=renderedView===view;
  const expanded=preserve?[...content.querySelectorAll('details')].map((d,i)=>d.open?i:-1).filter(i=>i>=0):[];
  const y=window.scrollY, dialogY=document.querySelector('.connection-dialog-body')?.scrollTop||0;await renderContent();renderedView=view;
- if(state.previewReadOnly)content.insertAdjacentHTML('afterbegin',`<p class="health-warn" role="status">${t('Development preview. You can inspect the interface; connecting or changing real AI accounts is disabled while safe migration is prepared.','Geliştirme önizlemesi. Arayüzü inceleyebilirsin; güvenli geçiş hazırlanırken gerçek AI hesaplarını bağlama ve değiştirme kapalıdır.')}</p>`);
+ if(state.previewReadOnly)content.insertAdjacentHTML('afterbegin',`<p class="health-warn" role="status">${t('Development preview: local Claude Desktop setup is available. Other AI connections and account changes are still being prepared.','Geliştirme önizlemesi: Claude Desktop yerel kurulumu kullanılabilir. Diğer AI bağlantıları ve hesap değişiklikleri hazırlanıyor.')}</p>`);
  const dialog=document.querySelector('#connection-dialog');if(dialog){dialog.showModal();dialog.addEventListener('cancel',()=>{selectedConnection=null;});dialog.querySelector('.connection-dialog-body').scrollTop=dialogY;}
  const details=[...content.querySelectorAll('details')];for(const i of expanded)if(details[i])details[i].open=true;
  if(preserve)window.scrollTo(0,y);
@@ -284,6 +290,7 @@ function coreIssue(error,stale){const code=String(error&&error.message||'');
  return t('The Core did not answer, so the code was never checked. The Core runs on your own machine — start it there, then connect. Nothing was changed.','Core cevap vermedi, yani kod hiç denenmedi. Core kendi makinende çalışır — orada başlat, sonra bağlan. Hiçbir şey değişmedi.')+(stale?' '+t('The last received state is still shown.','Son alınan durum gösteriliyor.'):'');}
 // The grant screen is the only place where a choice changes what will be written, so the scope
 // re-prepares the plan: the file list under it must always be the list this scope produces.
+document.addEventListener('dragstart',e=>{if(e.target.closest('[data-desktop-package]')){e.preventDefault();api.connectorDesktopDrag().catch(error);}});
 document.addEventListener('change',async e=>{
  const confirm=e.target.closest('#grant-confirm');
  if(confirm){granted=confirm.checked;await render();return;}
@@ -308,7 +315,9 @@ document.addEventListener('click',async e=>{const nav=e.target.closest('[data-vi
  if(a==='review-done'){await api.finishReview();reviewing=false;view='connections';notice=t('Restart the selected AI applications, then verify each connection below.','Seçtiğin AI uygulamalarını yeniden başlat, ardından aşağıdan her bağlantıyı doğrula.');await render();return;}
  if(a==='review-protocol'){await api.adoptProtocol();state=await api.snapshot();reviewResult={conflicts:state.profile.migration?.conflicts||[]};await render();return;}
 
- if(a==='connector-desktop-install'){const result=await api.connectorDesktopInstall();extensionArchive=result.archive;notice=t('Package path copied. Follow the installation steps below.','Paket yolu kopyalandı. Aşağıdaki kurulum adımlarını izle.');await render();try{await api.openAiApp('claude-desktop');}catch(e){notice=e.message;await render();}return;}
+ if(a==='connector-desktop-install'){const result=await api.connectorDesktopInstall();extensionArchive=result.archive;notice=t('Package ready. Drag it into Claude and approve installation there.','Paket hazır. Claude penceresine sürükle ve kurulumu orada onayla.');await render();try{await api.openAiApp('claude-desktop');}catch(e){notice=e.message;await render();}return;}
+ if(a==='start-local-setup'){await api.startLocalSetup();return;}
+ if(a==='connector-desktop-reveal'){await api.connectorDesktopReveal();return;}
  if(a==='connector-refresh'){await refreshRemote();return;}
  if(a==='connector-default'){remoteStatus=await api.connectorStart();await render();return;}
  if(a==='connector-start'){remoteStatus=await api.connectorStart(document.querySelector('#relay-url').value.trim());await render();return;}
@@ -383,7 +392,7 @@ document.addEventListener('click',async e=>{const nav=e.target.closest('[data-vi
  if(a==='confirm-remove'){busy=true;try{await api.removeHost(el.dataset.host);state=await api.snapshot();removing=null;notice=t('Connection removed. Your notes were preserved.','Bağlantı kaldırıldı. Notların korundu.');}finally{busy=false;}await render();}
  }catch(err){error(err);}finally{if(el.isConnected)el.disabled=false;}});
 api.onProgress(e=>{events.push(e);if(busy&&(setup||extending))renderSetup();});
-(async()=>{language=(await api.preferences()).language;state=await api.snapshot();reviewing=!!state.setupReview;selectedHosts=(state.profile?.hosts||[]).map(h=>h.id);if(state.migrationError)error(new Error(state.migrationError));if(setup){draft=(await api.discover()).suggested;draft.language=language;}await render();})().catch(error);
+(async()=>{language=(await api.preferences()).language;state=await api.snapshot();reviewing=!!state.setupReview;selectedHosts=(state.profile?.hosts||[]).map(h=>h.id);if(state.migrationError)error(new Error(state.migrationError));if(setup){draft=(await api.discover()).suggested;draft.language=language;if(state.localClaudeSetup){draft.hosts=['claude-desktop'];state.hosts=state.hosts.filter(h=>h.id==='claude-desktop');}}await render();})().catch(error);
 
 
 
@@ -393,12 +402,17 @@ async function refreshMate(){
  try{mateLocal=await api.companionLocalStatus();companionIssue='';if(!state.previewReadOnly)companionData=await api.companionResume();}catch(e){companionIssue=coreIssue(e,Boolean(companionData));}finally{mateLoading=false;if(view==='companion')renderCompanion();}
 }
 function renderCompanion(){
- content.innerHTML=window.ClaudianCompanion.render({local:mateLocal,core:companionData,issue:companionIssue,loading:mateLoading,quiet:mateQuiet,ack:mateAck,language,previewReadOnly:state.previewReadOnly});
- window.ClaudianCompanion.mount(content,async(action,id)=>{
+ content.innerHTML=window.ClaudianCompanion.render({local:mateLocal,core:companionData,issue:companionIssue,loading:mateLoading,quiet:mateQuiet,ack:mateAck,language,previewReadOnly:state.previewReadOnly,sourceWritesAvailable:state.localClaudeSetup&&state.profile?.hosts?.length===1&&state.profile.hosts[0].id==='claude-desktop'});
+ window.ClaudianCompanion.mount(content,async(action,id,text)=>{
   try{
    if(action==='quiet'){mateQuiet=!mateQuiet;localStorage.setItem('claudian-mate-quiet',String(mateQuiet));}
    if(action==='refresh'){mateAck='';await refreshMate();return;}
    if(action==='source')await api.companionLocalOpenSource(id);
+   if(action==='complete'||action==='revise'){
+    const result=await api.companionLocalUpdate(id,{action,text});
+    if(result.receipt?.status!=='committed')throw Error(t('The note update could not be confirmed.','Not değişikliği doğrulanamadı.'));
+    mateLocal=result.status;mateAck=t('Source note updated.','Kaynak not güncellendi.');
+   }
    if(action==='later'||action==='dismiss'){mateLocal=await api.companionLocalFeedback(id,action);mateAck=action==='later'?t('I will show it here in an hour.','Bir saat sonra burada yeniden görünecek.'):t('Hidden from this panel.','Bu panelden gizlendi.');}
    if(action==='connect'){companionData=await api.companionConnect(id);companionIssue='';}
    if(action==='disconnect'){await api.companionDisconnect();companionData=null;}

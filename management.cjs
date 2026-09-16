@@ -31,7 +31,8 @@ module.exports = (Setup, {HOSTS, hash, assertOrdinaryPath, json, atomicJson, exi
     // Migrate 0.3/0.4 profiles in memory, without touching installed instructions.
     const definition = HOSTS[id];
     if (definition.kind === 'remote') return {};
-    if (definition.kind === 'mcp') return {config: require('./mcp-hosts.cjs').configFile(this.home)};
+    if (definition.kind === 'extension'&&!this.legacy) return {route:'desktop-extension'};
+    if (definition.kind === 'mcp'||definition.kind === 'extension') return {config: require('./mcp-hosts.cjs').configFile(this.home)};
     const skill = path.join(this.home,...definition.parts,definition.filename || 'SKILL.md');
     let rule = path.join(this.home,'.claude/rules/claudian-memory.md');
     if (id === 'cursor') rule = path.join(this.home,'.cursor/rules/claudian-memory.mdc');
@@ -72,6 +73,12 @@ module.exports = (Setup, {HOSTS, hash, assertOrdinaryPath, json, atomicJson, exi
     const profile = await json(this.configFile);
     if (!profile) return [];
     return Promise.all(profile.hosts.map(async host => {
+      if(host.id==='claude-desktop'&&!this.legacy){
+        const extension=await require('./connector-package.cjs').desktopStatus(this.home,this.dataDir,{launcher:this.launcher,mcpScript:this.mcpScript});
+        const state=extension.current?'current':!extension.installed?'pending-install':!extension.enabled?'disabled':'outdated';
+        return {id:host.id,label:host.label,files:[],access:{state,scope:profile.access},extension,
+          artifacts:{route:'desktop-extension',extensionName:'claudian-next-memory'},hookTrust:null,status:extension.current?'ready':'attention'};
+      }
       if(HOSTS[host.id].kind==='remote'&&!this.tunnelUrl)return {id:host.id,label:host.label,files:[],
         access:{state:'unavailable',scope:profile.access,step:profile.language==='tr'?'Bağlantılar ekranından hesap bağlantısını tamamla.':'Complete account connection in the Connections screen.'},
         artifacts:{},hookTrust:null,status:'attention'};
@@ -89,7 +96,7 @@ module.exports = (Setup, {HOSTS, hash, assertOrdinaryPath, json, atomicJson, exi
         } catch (e) { if (e.code !== 'ENOENT') status = 'unreadable'; }
         details.push({kind,path:file,status});
       }
-      if (HOSTS[host.id].kind === 'mcp' && access?.file && !details.some(f=>f.path===access.file)) {
+      if (['mcp','extension'].includes(HOSTS[host.id].kind) && access?.file && !details.some(f=>f.path===access.file)) {
         let status='missing';
         try {
           await assertOrdinaryPath(access.file);
@@ -124,6 +131,10 @@ module.exports = (Setup, {HOSTS, hash, assertOrdinaryPath, json, atomicJson, exi
     //   hooks   the host's own file             → our command is still in it
 
     const connections = await Promise.all((await this.connections()).map(async connection => {
+      if(connection.artifacts?.route==='desktop-extension')return {...connection,
+        checks:{files:connection.extension.current?'ready':'unknown',access:connection.access.state,
+          server:{state:'unknown',detail:'Extension installation is observable; use inside Claude requires a real conversation.'}},
+        fileStates:[],failing:connection.extension.current?[]:['extension']};
       const host = profile.hosts.find(h => h.id === connection.id);
       const states = await Promise.all(connection.files.map(file => connectionFileState(profile, file, host)));
       const files = states.some(s => s !== 'ready') ? 'broken' : (states.length ? 'ready' : 'unknown');
@@ -410,6 +421,12 @@ module.exports = (Setup, {HOSTS, hash, assertOrdinaryPath, json, atomicJson, exi
     try {
       const profile = await json(this.configFile);
       if (!profile?.hosts.some(h=>h.id===id)) throw new Error('Connection not found.');
+      if(id==='claude-desktop'&&!this.legacy){
+        // Claude owns installed extensions. Removing our profile authorization
+        // revokes the bridge without deleting an old app's config or extension.
+        await atomicJson(this.configFile,{...profile,hosts:profile.hosts.filter(h=>h.id!==id)});
+        return {removed:id,notesPreserved:true,extensionUninstall:'provider-managed'};
+      }
       const keep = new Set();
       for (const host of profile.hosts.filter(h=>h.id!==id)) {
         const paths = await this.hostPaths(profile,host.id);

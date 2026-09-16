@@ -1,6 +1,6 @@
 'use strict';
 // Literal local-note fallback only. This is not the companion decision engine:
-// it infers nothing, and feedback hides a cue rather than completing a vault task.
+// it infers nothing. Presentation feedback is separate from explicit source edits.
 const fs=require('node:fs/promises'),path=require('node:path'),crypto=require('node:crypto');
 const store=require('./memory-store.cjs'),roles=require('./roles.cjs');
 const hash=value=>crypto.createHash('sha256').update(value).digest('hex');
@@ -13,7 +13,7 @@ class LocalCompanion {
  }
  async status() {
   const profile=await this.profile();
-  const result={state:'unconfigured',vault:profile?.vault||null,items:[],sources:[],hiddenCount:0};
+  const result={state:'unconfigured',vault:profile?.vault||null,canUpdate:profile?.access==='write',items:[],sources:[],hiddenCount:0};
   if(!profile?.vault)return result;
   try {
    await store.ordinary(profile.vault);await fs.readdir(profile.vault);
@@ -54,6 +54,28 @@ class LocalCompanion {
    try {await fs.writeFile(temp,JSON.stringify(ledger),{flag:'wx'});await fs.rename(temp,this.file);}finally{await fs.rm(temp,{force:true});}
    return this.status();
   });this.queue=run.catch(()=>{});return run;
+ }
+ update(id,input={}) {
+  const run=this.queue.then(()=>require('./profile-lock.cjs').exclusive(path.join(this.dataDir,'profile.json'),async()=>{
+   if(!input||!['complete','revise'].includes(input.action))throw Error('Unknown source update action.');
+   if(input.action==='revise'&&(typeof input.text!=='string'||!input.text.trim()||input.text.length>4000||/[\r\n\u0000-\u001f\u007f\u2028\u2029]/.test(input.text)))throw Error('A nonempty single-line replacement is required.');
+   const profile=await this.profile();
+   if(profile?.access!=='write')throw Error('Write access is required to update the source note.');
+   const current=await this.status(),item=current.items.find(item=>item.id===id);
+   if(!item||current.vault!==profile.vault)throw Error('This reminder is no longer current. Refresh the panel.');
+   const note=await store.read(profile.vault,item.source);
+   const lines=note.body.split('\n'),index=item.line-1;
+   const match=/^(\s*[-*+]\s+\[) (\]\s+)(.+?)(\s*)$/.exec((lines[index]||'').replace(/\r$/,''));
+   const matches=lines.filter(line=>/^\s*[-*+]\s+\[ \]\s+(.+?)\s*$/.exec(line)?.[1]===item.text);
+   if(!match||match[3]!==item.text||matches.length!==1)throw Error('The source changed or this item is ambiguous. Refresh the panel.');
+   const latest=await this.profile();
+   if(latest?.vault!==profile.vault||latest?.access!=='write')throw Error('Selected memory or write access changed. Refresh the panel.');
+   const replacement=input.action==='complete'?match[1]+'x'+match[2]+match[3]+match[4]:match[1]+' '+match[2]+input.text.trim()+match[4];
+   if(replacement===(lines[index]||'').replace(/\r$/,''))throw Error('The replacement is unchanged.');
+   lines[index]=replacement+(lines[index].endsWith('\r')?'\r':'');
+   const receipt=await store.mutate(profile.vault,{note:item.source,operation:'patch',expected_sha256:note.sha256,old_text:note.body,new_text:lines.join('\n'),reason:input.action==='complete'?'User marked this source item complete in the companion panel.':'User explicitly revised this source item in the companion panel.'},'companion-user');
+   return {receipt,status:await this.status()};
+  }));this.queue=run.catch(()=>{});return run;
  }
  async source(id) {
   const current=await this.status(),item=current.items.find(item=>item.id===id);

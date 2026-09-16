@@ -24,7 +24,7 @@ test('desktop protocol does not expose backend files or another origin',async()=
 });
 test('fresh read-only preview can render the panel without pretending memory is installed',async()=>{
  const source=await fs.readFile(path.join(root,'ui/renderer.js'),'utf8');let companionOpened=false;
- const context={state:{profile:null,previewReadOnly:true},view:'home',content:{innerHTML:''},t:(en)=>en,renderCompanion:()=>{companionOpened=true;}};
+ const context={state:{profile:null,previewReadOnly:true},view:'home',content:{innerHTML:''},t:(en)=>en,btn:()=>'',renderCompanion:()=>{companionOpened=true;}};
  const start=source.indexOf('async function renderPanel()'),end=source.indexOf(" if(!p)throw",start);
  vm.runInNewContext(source.slice(start,end)+'}',context);
  await context.renderPanel();assert.match(context.content.innerHTML,/no memory folder/);

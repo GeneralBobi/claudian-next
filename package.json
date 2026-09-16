@@ -1,7 +1,7 @@
 {
   "name": "claudian-next",
   "productName": "Claudian Next",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "private": true,
   "description": "Claudian ortak hafÄ±za uygulamasÄ±",
   "author": "Claudian",
@@ -28,6 +28,8 @@
       "main.cjs",
       "preload.cjs",
       "core.cjs",
+      "profile-lock.cjs",
+      "local-preview.cjs",
       "grants.cjs",
       "codex-grant.cjs",
       "management.cjs",

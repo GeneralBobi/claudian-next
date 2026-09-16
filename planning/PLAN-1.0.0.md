@@ -156,3 +156,17 @@ Karakterli panel ve gerçek yerel kaynak karşılıkları uygulandı; ayrıntı 
 - [x] Dışa aktarılan connector skill'inde kalan zorunlu tur muhasebesi cümlesi kaldırıldı.
 
 17 hedefli kontrol (7 paket/durum, 6 izolasyon, 3 protokol/önizleme, 1 oturum devamı) geçti. Bunlar geçici dosyalar ve sahte transport ile teknik kontrollerdir; Electron üzerinde kullanıcı kabulü, gerçek hesap girişi, kurulum veya yayın değildir. Öncelikli açık işler önceki dilimdeki host sahipliği/kolay kurulum, ortak profil yazma koruması, genel dağıtım ve gerçek çift yönlü bağlam motorudur.
+
+## 16.09 — ilk kullanılabilir yerel akış
+
+- [x] Ortak profil yazarlarının eşzamanlılık koruması.
+- [x] Claude Desktop için tek Next extension yolu; eski JSON/extension kayıtlarını koruma.
+- [x] Normal önizlemede yalnız bu yerel akışın açılması; hazır paket sürükleme ve gerçek erişim kanıtına geçiş.
+- [x] Yol arkadaşında açık maddeyi kaynak notta tamamla/düzelt; hash, yazma yetkisi ve makbuz denetimi.
+- [x] `1.0.0-alpha.2` Windows uygulama paketi üretildi.
+- [ ] Gerçek Claude paket teslimi/etkinleştirme ve kullanıcı kabulü.
+- [ ] Diğer hostların ortak dosya sahipliği ve geçişi; genel uzak entegrasyon dağıtımı.
+- [ ] Kaynaklar arası beklenti/bağlam sentezi ve ona bağlı geri bildirim döngüsü.
+- [ ] Final 1.0.0 sürümü, GitHub release ve websitesi. Kullanıcı hazır olduğunda deploy yetkisini verdi; tamamlanmamış akışlar final diye yayımlanmaz.
+
+[Bu dilimin davranışı ve sınırları](LOCAL-CLAUDE-ALPHA2.md). Kullanıcının uçtan uca testi ayrı tutulur. Önceki önizlemenin bütün mutasyonları kapattığı açıklamalar bu dilim için yerel Claude istisnasıyla güncellenmiştir.

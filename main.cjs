@@ -28,14 +28,14 @@ const previewReads = new Set([
   'memory:health','memory:notice','setup:cancel','memory:verify-cancel',
   'companion:local-status','companion:local-feedback','companion:local-open-source'
 ]);
-function requirePreviewAccess(name) {
-  if (!isolatedPreview && !previewReads.has(name)) {
+function requirePreviewAccess(name,localAllowed=false) {
+  if (!isolatedPreview && !previewReads.has(name) && !localAllowed) {
     throw new Error('Claudian Next önizlemesinde gerçek AI bağlantılarını değiştirme kapalıdır. Mevcut bağlantıları korumak için önce güvenli geçiş tamamlanmalıdır.');
   }
 }
 
 const origin = 'claudian://app';
-let win, core, remoteConnector, migrationError='', setupReview=false, installStamp='';
+let win, core, remoteConnector, migrationError='', setupReview=false, installStamp='', desktopPackage=null;
 protocol.registerSchemesAsPrivileged([{ scheme: 'claudian', privileges: { standard: true, secure: true, supportFetchAPI: true } }]);
 if (!smoke) app.setPath('userData', acceptanceRoot?path.join(acceptanceRoot,'data'):path.join(app.getPath('appData'), 'Claudian Next'));
 if (purge) app.whenReady().then(purgeInstallation).then(() => app.exit(0)).catch(error => { console.error(error); app.exit(1); });
@@ -111,7 +111,10 @@ async function start() {
   function handle(name, fn) {
     ipcMain.handle(name, async (event, ...args) => {
       if (event.sender !== win.webContents || event.senderFrame !== win.webContents.mainFrame || !event.senderFrame.url.startsWith(origin + '/')) throw new Error('Geçersiz uygulama isteği.');
-      try { requirePreviewAccess(name); return { ok: true, value: await fn(...args) }; }
+      try {
+        const localAllowed=!isolatedPreview&&typeof core!=='undefined'&&await require('./local-preview.cjs').allows(name,args,core);
+        requirePreviewAccess(name,localAllowed); return { ok: true, value: await fn(...args) };
+      }
       catch (error) { return { ok: false, error: error.message }; }
     });
   }
@@ -119,8 +122,10 @@ async function start() {
   const localCompanion = new (require('./companion-local.cjs').LocalCompanion)({dataDir:core.dataDir,profile:async()=>(await core.snapshot()).profile});
   handle('companion:local-status',()=>localCompanion.status());
   handle('companion:local-feedback',(id,action)=>localCompanion.feedback(id,action));
+  handle('companion:local-update',(id,change)=>localCompanion.update(id,change));
   handle('companion:local-open-source',async id=>{const target=await localCompanion.source(id);const error=await shell.openPath(target);if(error)throw Error(error);return true;});
-  handle('app:snapshot', async () => ({...await core.snapshot(),appVersion:app.getVersion(),migrationError,setupReview,previewReadOnly:!isolatedPreview}));
+  handle('app:snapshot', async () => ({...await core.snapshot(),appVersion:app.getVersion(),migrationError,setupReview,previewReadOnly:!isolatedPreview,localClaudeSetup:!isolatedPreview}));
+  handle('app:setup-local',async()=>{await win.loadURL(origin+'/setup.html');return true;});
   handle('setup:review', async (hosts, consent, withdraw) => {
     const result=await require('./setup-review.cjs').apply(core,hosts,consent,withdraw);
     return result;
@@ -140,9 +145,19 @@ async function start() {
     await fs.access(profile.vault);
     const result=await require('./connector-package.cjs').writeDesktop(path.join(core.dataDir,'extensions'),{
       launcher:core.launcher,mcpScript:core.mcpScript,dataDir:core.dataDir,language:profile.language});
-    clipboard.writeText(result.archive);
-    shell.showItemInFolder(result.archive);
+    desktopPackage=result.archive;
     return {archive:result.archive};
+  });
+  handle('connector:desktop-drag',async()=>{
+    if(!desktopPackage)throw Error('Önce Claude paketini hazırla.');
+    await assertOrdinaryPath(desktopPackage);await fs.access(desktopPackage);
+    win.webContents.startDrag({file:desktopPackage,icon:path.join(__dirname,'assets','icon.ico')});
+    return true;
+  });
+  handle('connector:desktop-reveal',async()=>{
+    if(!desktopPackage)throw Error('Önce Claude paketini hazırla.');
+    await assertOrdinaryPath(desktopPackage);await fs.access(desktopPackage);
+    shell.showItemInFolder(desktopPackage);return true;
   });
   handle('connector:start',url=>remoteConnector.start(url));
   handle('connector:stop',()=>remoteConnector.stop());

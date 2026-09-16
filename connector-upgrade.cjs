@@ -3,6 +3,7 @@ const fs=require('node:fs/promises'),path=require('node:path');
 const store=require('./memory-store.cjs');
 const mcp=require('./mcp-hosts.cjs');
 async function plan(setup,profile,host){
+ if(host.id==='claude-desktop'&&!setup.legacy)return {files:[],artifacts:{route:'desktop-extension',extensionName:'claudian-next-memory',access:{state:'pending-install',scope:profile.access}}};
  if(!['claude-code','codex','claude-desktop','cursor','gemini-cli'].includes(host.id))return {files:[],artifacts:host.artifacts};
  const files=[],artifacts={...(host.artifacts||{})};
  const read=async file=>{await store.ordinary(file);return fs.readFile(file,'utf8').catch(e=>{if(e.code==='ENOENT')return null;throw e;});};

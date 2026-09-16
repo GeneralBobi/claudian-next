@@ -10,7 +10,7 @@ const PROTOCOL_NOTE=language=>language==='tr'?'Vault Protokolü.md':'Vault Proto
 const protocol=(language,name)=>{
  const canonical=PROTOCOL_NOTE(language);
  if(name&&name!==canonical)return `---\nclaudian_protocol: ${VERSION}\nclaudian_role: protocol-redirect\n---\n# ${name.slice(0,-3)}\n\n${language==='tr'?'Bu eski ad yalnızca yönlendirmedir. Güncel ve tek protokol:':'This legacy name is a redirect. The single current protocol is:'} [[${canonical.slice(0,-3)}]].\n`;
- return fs.readFileSync(path.join(__dirname,'policies',language==='tr'?'protocol-tr.md':'protocol-en.md'),'utf8').split('{{VERSION}}').join(VERSION);
+ return fs.readFileSync(path.join(__dirname,'policies',language==='tr'?'protocol-tr.md':'protocol-en.md'),'utf8').replace(/\r\n/g,'\n').split('{{VERSION}}').join(VERSION);
 };
 const instruction=(target,vault,language)=>language==='tr'
  ? `Her yeni konuşmanın başında ${JSON.stringify(target)} konumundaki claudian-memory skill'ini sessizce oku. ${JSON.stringify(vault)} seçili hafızadır. Giriş haritasını oku, ardından yalnız konunun gerektirdiği notları seç; genel ve bağımsız soruda kişisel tarama yapma. Slash komutu bekleme.

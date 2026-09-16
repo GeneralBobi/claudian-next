@@ -12,7 +12,7 @@ async function installed(t,access='write'){
  const home=path.join(root,'home');await fs.mkdir(home);
  // The packaged product launches the server through Electron running as Node; under the test
  // runner the launcher is plain node and the script is the real mcp-server.cjs.
- const core=new MemorySetup({home,dataDir:path.join(root,'data'),launcher:process.execPath,mcpScript:path.join(__dirname,'..','mcp-server.cjs')});
+ const core=new MemorySetup({legacy:true,home,dataDir:path.join(root,'data'),launcher:process.execPath,mcpScript:path.join(__dirname,'..','mcp-server.cjs')});
  await core.install((await core.prepare({name:'Deniz',vault:path.join(root,'notes'),mode:'new',storage:'markdown',hosts:['claude-desktop'],language:'en',access})).id,true);
  return {core,root};
 }
@@ -81,6 +81,11 @@ test('a fresh installation reports nothing broken',async t=>{
 
  const report=await core.selfCheck();
  for(const connection of report.connections){
+  if(connection.id==='claude-desktop'){
+   assert.equal(connection.access.state,'pending-install');
+   assert.equal(connection.checks.server.state,'unknown');
+   assert.deepEqual(connection.failing,['extension']);continue;
+  }
   const named=(connection.fileStates||[]).filter(f=>f.state!=='ready').map(f=>f.kind+':'+f.state).join(', ');
   assert.deepEqual(connection.failing,[],connection.label+' should be clean but reports '+(named||connection.failing.join(',')));
  }

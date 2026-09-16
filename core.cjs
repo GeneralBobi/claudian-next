@@ -15,7 +15,7 @@ const HOSTS = {
   'antigravity-cli': { label: 'Antigravity CLI', parts: ['.gemini', 'antigravity-cli', 'skills'], filename: 'claudian-memory.md', detect: ['.gemini/antigravity-cli'] },
   // MCP ile baglanan uygulamalar. Bunlar skill dosyasi okumaz; yetenekleri adlariyla
   // cagirirlar. Ayrintili gerekce mcp-hosts.cjs basinda.
-  'claude-desktop': { label: 'Claude', kind: 'mcp', detect: ['AppData/Roaming/Claude'] },
+  'claude-desktop': { label: 'Claude', kind: 'extension', detect: ['AppData/Roaming/Claude'] },
   // ChatGPT yerel surec baslatamaz; baglanti yalnizca genel bir HTTPS ucundan kurulur.
   chatgpt: { label: 'ChatGPT', kind: 'remote', detect: ['AppData/Roaming/ChatGPT', 'AppData/Local/Programs/ChatGPT'] },
 };
@@ -224,7 +224,12 @@ class MemorySetup {
     for (const host of input.hosts) {
       // MCP konaklari skill + baslangic kurali yolunu hic kullanmaz: tek ihtiyaclari
       // sunucuyu nasil baslatacaklarini soyleyen bir yapilandirma girdisi.
-      if (KNOWN[host].kind === 'mcp') {
+      if (KNOWN[host].kind === 'extension' && !this.legacy) {
+        artifacts[host]={route:'desktop-extension',extensionName:'claudian-next-memory',
+          access:{state:'pending-install',scope:access},capabilities:capabilityNames};
+        continue;
+      }
+      if (KNOWN[host].kind === 'mcp' || (KNOWN[host].kind === 'extension' && this.legacy)) {
         const file = mcpHosts.configFile(this.home);
         await assertOrdinaryPath(file);
         const previous = await exists(file) ? await fs.readFile(file, 'utf8') : null;
@@ -529,3 +534,9 @@ class MemorySetup {
 module.exports = { MemorySetup, HOSTS, RETIRED, KNOWN, VERSION, hash, assertOrdinaryPath };
 require('./management.cjs')(MemorySetup, {HOSTS: KNOWN, hash, assertOrdinaryPath, json, atomicJson, exists});
 require('./upgrade.cjs')(MemorySetup, {hash,assertOrdinaryPath,json,atomicJson});
+// Serialize the whole read/modify/write operation, including nested relocate -> upgrade.
+// Readers stay independent; atomic profile replacement gives them a complete snapshot.
+require('./profile-lock.cjs').wrap(MemorySetup,[
+  'prepare','install','challenge','verify','preferences','useLanguage',
+  'skipVerification','adoptProtocol','sweepResidue','relocate','removeHost','upgrade'
+]);

@@ -21,6 +21,8 @@ Mevcut Core'dan anlamlı kart/odak varsa birincil temas odur. Yerel notlardan a�
 
 ## Görsel ve teknik karar
 
+16.09 alpha.2: yazma yetkili yerel Claude profilinde “Bu maddeyi güncelle” alanı eklendi. Tamamla veya tek satırlık düzeltme gerçek kaynak nota guarded store ile uygulanır; makbuz doğrulanmadan başarı gösterilmez. Gizle/sonra ile ayrıdır. Diğer notlara anlamsal yayılım ve beklenti sentezi henüz uygulanmadı.
+
 Mevcut koyu zemin, Poppins/Lora ve mercan vurgu korunur. Karakter bir görüntü kopyası değil, geometrik gözleri olan özgün ekran kontrolüdür. Göz/bakış ve başın tek hareket dili var; dekoratif genel animasyon eklenmez. Klavye, sessiz mod ve reduced-motion çalışır. 940×760 ana pencere ve 680×560 minimum pencere birlikte incelenir.
 
 ## Kaynak
