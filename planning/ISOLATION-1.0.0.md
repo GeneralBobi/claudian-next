@@ -21,4 +21,6 @@ K9'un kapanması için her host dosyasında sahiplik ve önceki içeriğin korun
 
 ## Dar doğrulama
 
+16.09: profilsiz normal önizleme de doğrudan paneli açar; bağlantı kurulduğu veya notlara erişildiği iddiası yoktur. Önceki setup ekranı önizleme kapısı nedeniyle ilerleyemiyordu. Kurulum/hesap değişikliği kapısı açılmadı. Mevcut Core oturumunu sürdürme IPC'si de bu kapının arkasındadır.
+
 `node --test test/next-isolation.test.cjs`: ayrı paket kimliği, kilitten önce profil ayrımı, güncellemenin ağa çıkmadan durması, kaldırmanın ortak kayıtlara erişmemesi. Bu kontroller gerçek hesap/installer kabulünün yerine geçmez.

@@ -57,7 +57,7 @@ async function start() {
   }
   protocol.handle('claudian', request => {
     const url = new URL(request.url);
-    const allowed = { '/': 'index.html', '/index.html': 'index.html', '/setup.html': 'setup.html', '/styles.css': 'styles.css', '/fonts.css': 'fonts.css', '/renderer.js': 'renderer.js', '/errors.js': 'errors.js', '/lottie.min.js': 'lottie.min.js', '/claudian-memory.json': 'claudian-memory.json' };
+    const allowed = { '/': 'index.html', '/index.html': 'index.html', '/setup.html': 'setup.html', '/styles.css': 'styles.css', '/fonts.css': 'fonts.css', '/renderer.js': 'renderer.js', '/errors.js': 'errors.js', '/lottie.min.js': 'lottie.min.js', '/claudian-memory.json': 'claudian-memory.json', '/companion-panel.js': 'companion-panel.js', '/companion-panel.css': 'companion-panel.css' };
     if (url.hostname === 'app' && /^\/fonts\/[a-zA-Z0-9_.-]+\.woff2$/.test(url.pathname)) return net.fetch(pathToFileURL(path.join(__dirname, 'ui', url.pathname.slice(1))).href);
     if (url.hostname !== 'app' || !allowed[url.pathname]) return new Response('Not found', { status: 404 });
     return net.fetch(pathToFileURL(path.join(__dirname, 'ui', allowed[url.pathname])).href);
@@ -96,10 +96,11 @@ async function start() {
     }
   } catch(error) { migrationError=error.message; }
   const installed = Boolean((await core.snapshot()).profile);
+  const showPanel = installed || !isolatedPreview;
   installStamp = app.getVersion()+':'+await fs.readFile(path.join(path.dirname(process.resourcesPath),'install-session.txt'),'utf8').catch(e=>{if(e.code==='ENOENT')return 'legacy';throw e;});
   setupReview = !smoke && await require('./setup-review.cjs').pending(core.dataDir,installStamp,(await core.snapshot()).profile);
-  win = new BrowserWindow({ icon: path.join(__dirname, 'assets', 'icon.ico'), width: installed ? 940 : 720, height: installed ? 760 : 640, minWidth: 680, minHeight: 560,
-    title: installed ? 'Claudian Next — Preview' : 'Claudian Next — Preview Setup', backgroundColor: '#0e0e10', show: false, autoHideMenuBar: true,
+  win = new BrowserWindow({ icon: path.join(__dirname, 'assets', 'icon.ico'), width: showPanel ? 940 : 720, height: showPanel ? 760 : 640, minWidth: 680, minHeight: 560,
+    title: showPanel ? 'Claudian Next — Preview' : 'Claudian Next — Preview Setup', backgroundColor: '#0e0e10', show: false, autoHideMenuBar: true,
     webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false, backgroundThrottling: false, offscreen: smoke } });
   win.removeMenu();
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
@@ -442,7 +443,7 @@ async function start() {
     setInterval(() => void noticed(), 30 * 60 * 1000);
   }
 
-  await win.loadURL(origin + (installed ? '/index.html' : '/setup.html'));
+  await win.loadURL(origin + (showPanel ? '/index.html' : '/setup.html'));
   if (smoke) await require('./smoke.cjs').run({ win, core, app, home });
   else win.show();
 }

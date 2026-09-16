@@ -13,3 +13,11 @@ test('both provider packages use the actual endpoint and the shared application 
 test('packages refuse endpoints containing credentials or insecure remote URLs',()=>{
   for(const url of ['http://relay.example/mcp','https://token@relay.example/mcp','https://relay.example/mcp?token=secret'])assert.throws(()=>entries({provider:'chatgpt',url}));
 });
+
+test('generated skills keep turn diagnostics optional in both languages',()=>{
+ for(const provider of ['chatgpt','claude-desktop'])for(const language of ['en','tr']){
+  const skill=entries({provider,language,url:'https://relay.example/mcp'})['skills/claudian-memory/SKILL.md'];
+  assert.match(skill,/begin_memory_turn and memory_review are optional diagnostic tools/);
+  assert.doesNotMatch(skill,/Use begin_memory_turn once per user turn|finish maintenance with memory_review/);
+ }
+});

@@ -10,7 +10,7 @@ function entries({provider,url,language='en',version=require('./package.json').v
   const endpoint=new URL(url);
   if(endpoint.protocol!=='https:'||endpoint.username||endpoint.password||endpoint.search||endpoint.hash)throw Error('An HTTPS MCP endpoint is required');
   const name='claudian-memory';
-  const skill=`---\nname: claudian-memory\ndescription: Use the connected Claudian shared memory at conversation start, including greetings, and maintain durable notes throughout the conversation.\n---\n# Claudian memory\n\n${require('./memory-runtime.cjs').instructionsFor(language)}\n\nUse the Claudian connector's startup_context to resolve the selected vault and read the user's customizations. Do not guess a local path. Read the adapter for this AI if present. Use begin_memory_turn once per user turn, reuse its session_id throughout this conversation, and finish maintenance with memory_review. These are the same tools and policy used by the desktop application. If the connector is missing or access fails, say so briefly; a skill cannot grant access. Never claim this preference was stored in the provider's own memory unless that provider confirms it.\n\n${policy.protocol(language)}`;
+  const skill=`---\nname: claudian-memory\ndescription: Use the connected Claudian shared memory at conversation start, including greetings, and maintain durable notes throughout the conversation.\n---\n# Claudian memory\n\n${require('./memory-runtime.cjs').instructionsFor(language)}\n\nUse the Claudian connector's startup_context to resolve the selected vault and read the user's customizations. Do not guess a local path. Read the adapter for this AI if present. begin_memory_turn and memory_review are optional diagnostic tools, not prerequisites for answering or writing. When diagnostics are requested, keep their session_id scoped to this conversation and connection. No diagnostic call is required when nothing belongs in memory. These are the same tools and policy used by the desktop application. If the connector is missing or access fails, say so briefly; a skill cannot grant access. Never claim this preference was stored in the provider's own memory unless that provider confirms it.\n\n${policy.protocol(language)}`;
   const files={'skills/claudian-memory/SKILL.md':skill,'.mcp.json':json({mcpServers:{claudian:{type:'http',url}}})};
   if(provider==='claude-desktop')files['.claude-plugin/plugin.json']=json({name,version,description:'Shared memory using your Claudian device connection',author:{name:'Claudian'}});
   else files['.codex-plugin/plugin.json']=json({name,version,description:'Shared memory using your Claudian device connection',author:{name:'Claudian'},skills:'./skills/',mcpServers:'./.mcp.json',interface:{displayName:'Claudian Core',shortDescription:'Shared memory across your AI conversations',longDescription:'Use your selected Claudian vault through an authorized device connection. The same application protocol guides reading, writing and memory maintenance.',developerName:'Claudian',category:'Productivity',capabilities:[],defaultPrompt:'Use my connected Claudian memory.'}});
@@ -64,24 +64,37 @@ async function writeDesktop(directory,options) {
 }
 module.exports={entries,zip,write,desktopEntries,writeDesktop};
 
-// Only an enabled extension bound to this installation is current.
+// Installation evidence is distinct from an enabled, current-version binding.
 module.exports.desktopStatus=async(home,dataDir,installation)=>{
  const root=path.dirname(require('./mcp-hosts.cjs').configFile(home));
  const dirs=await fs.readdir(path.join(root,'Claude Extensions'),{withFileTypes:true}).catch(e=>{if(e.code==='ENOENT')return [];throw e;});
+ const version=require('./package.json').version;
+ let best=null,bestRank=-1;
  for(const dir of dirs.filter(e=>e.isDirectory())){
   const base=path.join(root,'Claude Extensions',dir.name);
   try{
    const manifest=JSON.parse(await fs.readFile(path.join(base,'manifest.json'),'utf8'));
    if(manifest.name!=='claudian-memory')continue;
+   const settings=await fs.readFile(path.join(root,'Claude Extensions Settings',dir.name+'.json'),'utf8').then(JSON.parse).catch(()=>null);
+   const enabled=settings?.isEnabled===true;
+   let bound=false;
+   try{
    const config=JSON.parse(await fs.readFile(path.join(base,'installation.json'),'utf8'));
-   const settings=JSON.parse(await fs.readFile(path.join(root,'Claude Extensions Settings',dir.name+'.json'),'utf8'));
    const same=(a,b)=>typeof a==='string'&&typeof b==='string'&&path.resolve(a).toLowerCase()===path.resolve(b).toLowerCase();
    const wrapper=await fs.readFile(path.join(base,'server.cjs'),'utf8');
    const expected=desktopEntries({...config})['server.cjs'];
-   if(same(config.dataDir,dataDir)&&(!installation||(same(config.launcher,installation.launcher)&&same(config.mcpScript,installation.mcpScript)))&&wrapper===expected)return {current:settings.isEnabled===true,installed:true,enabled:settings.isEnabled===true,version:manifest.version};
+   bound=same(config.dataDir,dataDir)&&(!installation||(same(config.launcher,installation.launcher)&&same(config.mcpScript,installation.mcpScript)))&&wrapper===expected;
+   }catch{}
+   const current=bound&&enabled&&manifest.version===version;
+   const status={current,installed:true,enabled,version:manifest.version};
+   if(current)return status;
+   // Prefer evidence for this installation, then an enabled candidate. Do not
+   // stop at a stale/disabled copy before discovering a healthy later entry.
+   const rank=(bound?4:0)+(enabled?2:0)+(manifest.version===version?1:0);
+   if(rank>bestRank){best=status;bestRank=rank;}
   }catch{}
  }
- return {current:false};
+ return best||{current:false};
 };
 
 // Official Claude custom connector install link; it only prefills, never grants access.

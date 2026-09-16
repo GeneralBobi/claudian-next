@@ -31,6 +31,7 @@ contextBridge.exposeInMainWorld('claudian', {
   companionLocalOpenSource: id => invoke('companion:local-open-source',id),
   companionConnect: code => invoke('companion:connect',code),
   companionRefresh: () => invoke('companion:refresh'),
+  companionResume: () => invoke('companion:resume'),
   companionDisconnect: () => invoke('companion:disconnect'),
   openAiApp: id => invoke('memory:open-app',id),
   repair: host => invoke('memory:repair',host),

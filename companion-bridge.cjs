@@ -14,5 +14,12 @@ exports.attach=(handle,session)=>{
   return request('/api/surface');
  });
  handle('companion:refresh',()=>request('/api/surface'));
+ handle('companion:resume',async()=>{
+  // Only resume an existing app-owned login. A fresh preview must not contact Core.
+  const cookies=await transport.cookies.get({url:'https://claudian.app'});
+  if(!cookies.length)return null;
+  try{return await request('/api/surface');}
+  catch(e){if(e.message==='CORE_AUTH_REQUIRED')return null;throw e;}
+ });
  handle('companion:disconnect',async()=>{await transport.clearStorageData();return true;});
 };

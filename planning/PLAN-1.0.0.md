@@ -146,3 +146,13 @@ Karakterli panel ve gerçek yerel kaynak karşılıkları uygulandı; ayrıntı 
 - [ ] Öncelikli devam: ortak host dosyası sahipliği, profil yazarları için ortak eşzamanlılık koruması ve Claude Desktop hazır paket akışı.
 - [ ] Yol arkadaşı: gerçek bağlam değerlendirmesi ve Core'a çift yönlü geri bildirim.
 - [ ] Genel uzak dağıtım ve sürümlü geçiş, ardından kullanıcının yapacağı uçtan uca kabul. Bu tur hesap/kurulum testi veya yayın yapılmadı.
+
+## 05.00 devamı — 16.09 çalışma zamanı bağlantıları
+
+- [x] Yol arkadaşı JS/CSS dosyaları masaüstünün gerçek protokol listesine eklendi. Önceki tarayıcı görselleri bu eksikliği yakalamıyordu.
+- [x] Profilsiz normal önizleme artık engelli kurulum ekranında takılmaz; panel açılır. Kurulu olmayan hafıza açık belirtilir; gerçek bağlantı mutasyon kapısı korunur.
+- [x] Mevcut Core oturumu yeniden açılışta geri yüklenebilir. Uygulamaya ait oturum çerezi yoksa ağ çağrısı yapılmaz; normal salt okunur önizlemede uzak erişim yine kapalıdır.
+- [x] Claude eklentisi ancak doğru uygulama sürümü, etkinlik, dosya yolları ve launcher eşleşmesiyle güncel sayılır. Eski/devre dışı ilk kopya sonraki sağlıklı kurulumu gölgelemez.
+- [x] Dışa aktarılan connector skill'inde kalan zorunlu tur muhasebesi cümlesi kaldırıldı.
+
+17 hedefli kontrol (7 paket/durum, 6 izolasyon, 3 protokol/önizleme, 1 oturum devamı) geçti. Bunlar geçici dosyalar ve sahte transport ile teknik kontrollerdir; Electron üzerinde kullanıcı kabulü, gerçek hesap girişi, kurulum veya yayın değildir. Öncelikli açık işler önceki dilimdeki host sahipliği/kolay kurulum, ortak profil yazma koruması, genel dağıtım ve gerçek çift yönlü bağlam motorudur.
