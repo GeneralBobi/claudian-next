@@ -16,7 +16,10 @@ async function plan(setup,profile,host){
  const options={exe:setup.launcher,script:path.join(path.dirname(setup.mcpScript),'memory-hook.cjs'),dataDir:setup.dataDir,access:profile.access==='write'?'write':'read'};
  if(host.id==='codex'){
   const connector=require('./codex-connector.cjs'),file=path.join(setup.codexHome,'config.toml'),before=await read(file);
-  add(file,before,connector.grant(before,entry),'grant');
+  const server=host.artifacts?.server||(setup.legacy?'claudian':'claudian-next');
+  const baseConfig=host.artifacts?.mcpEntry?connector.revoke(before||'',{serverName:server,expectedEntry:host.artifacts.mcpEntry}):before;
+  add(file,before,connector.grant(baseConfig,entry,{serverName:server}),'grant');
+  Object.assign(artifacts,{server,mcpEntry:entry});
   const hookFile=path.join(setup.codexHome,'hooks.json'),old=await read(hookFile);
   let base=old;
   if(artifacts.hookCommand && old){

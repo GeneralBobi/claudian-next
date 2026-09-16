@@ -477,7 +477,10 @@ module.exports = (Setup, {HOSTS, hash, assertOrdinaryPath, json, atomicJson, exi
           let revoked = require('./grants.cjs').revokeFor(file.host || id, before, profile.vault);
           if(id==='claude-desktop')revoked=require('./mcp-hosts.cjs').mcpRevoke(before,profile.hosts.find(h=>h.id===id).artifacts?.mcpEntry);
           if(id==='gemini-cli'&&profile.hosts.find(h=>h.id===id).artifacts?.mcpEntry)revoked=require('./mcp-hosts.cjs').mcpRevoke(revoked||before,profile.hosts.find(h=>h.id===id).artifacts.mcpEntry)||revoked;
-          if(id==='codex')revoked=require('./codex-connector.cjs').revoke(revoked||before);
+          if(id==='codex'){
+            const owner=profile.hosts.find(h=>h.id===id)?.artifacts;
+            revoked=require('./codex-connector.cjs').revoke(revoked||before,{serverName:owner?.server||'claudian',expectedEntry:owner?.mcpEntry});
+          }
           const host=profile.hosts.find(h=>h.id===id);
           if(id==='claude-code'&&host.artifacts?.hooks===file.path&&host.artifacts.hookCommand)revoked=require('./claude-lifecycle.cjs').revoke(revoked||before,host.artifacts.hookCommand);
           if (revoked === null) continue;

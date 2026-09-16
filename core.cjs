@@ -318,14 +318,15 @@ class MemorySetup {
         const before=await exists(file)?await fs.readFile(file,'utf8'):null;
         const staged=files.find(f=>f.path===file);
         const entry=mcpHosts.serverEntry({exe:this.launcher,script:this.mcpScript,dataDir:this.dataDir});entry.env.CLAUDIAN_HOST=host;
-        const content=connector.grant(staged?.content||before,entry);
+        const server=existingProfile?.hosts.find(h=>h.id===host)?.artifacts?.server||(this.legacy?'claudian':'claudian-next');
+        const content=connector.grant(staged?.content||before,entry,{serverName:server});
         if(staged)staged.content=content;
         else if(content!==before)files.push({path:file,content,previous:before,expectedHash:before===null?null:hash(before),type:'grant',host});
         const hookFile=path.join(this.codexHome,'hooks.json');await assertOrdinaryPath(hookFile);
         const old=await exists(hookFile)?await fs.readFile(hookFile,'utf8'):null;
         const hook=connector.hooks(old,{exe:this.launcher,script:path.join(path.dirname(this.mcpScript),'memory-hook.cjs'),dataDir:this.dataDir});
         if(hook.content!==old)files.push({path:hookFile,content:hook.content,previous:old,expectedHash:old===null?null:hash(old),type:'hooks',host});
-        Object.assign(artifacts[host],{config:file,mcpEntry:entry,hooks:hookFile,hookCommand:hook.command,hookTrust:'requires-host-review',server:'claudian',capabilities:capabilityNames});
+        Object.assign(artifacts[host],{config:file,mcpEntry:entry,hooks:hookFile,hookCommand:hook.command,hookTrust:'requires-host-review',server,capabilities:capabilityNames});
       }
       if (host === 'claude-code') {
         const lifecycle=require('./claude-lifecycle.cjs');

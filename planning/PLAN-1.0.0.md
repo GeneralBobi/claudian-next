@@ -1,6 +1,6 @@
 # Claudian 1.0.0 — Ürün ve teslim planı
 
-Durum: 15.09.2026 itibarıyla karar alma ve ilk uygulama dilimi; kaynak sürümü `1.0.0-alpha.1`, yayımlanmış 1.0.0 değildir. Başlangıç kaynağı yayımlanmış 0.18.7'dir. Yeni depo eski uygulamanın yerine geçirilmez. Kullanıcı planlama, yerinde karar alma, uygulama ve ajanlarla denetim yetkisi verdi.
+Durum: 16.09.2026 itibarıyla yerel Claude akışı ve geçiş geliştirmesi; kaynak sürümü `1.0.0-alpha.2`, yayımlanmış 1.0.0 değildir. Başlangıç kaynağı yayımlanmış 0.18.7'dir. Yeni depo eski uygulamanın yerine geçirilmez. Kullanıcı uygulama, ajanlarla denetim ve hazır olduğunda GitHub/website yayını yetkisi verdi.
 
 ## Uygulanacak ürün kararı
 
@@ -170,3 +170,14 @@ Karakterli panel ve gerçek yerel kaynak karşılıkları uygulandı; ayrıntı 
 - [ ] Final 1.0.0 sürümü, GitHub release ve websitesi. Kullanıcı hazır olduğunda deploy yetkisini verdi; tamamlanmamış akışlar final diye yayımlanmaz.
 
 [Bu dilimin davranışı ve sınırları](LOCAL-CLAUDE-ALPHA2.md). Kullanıcının uçtan uca testi ayrı tutulur. Önceki önizlemenin bütün mutasyonları kapattığı açıklamalar bu dilim için yerel Claude istisnasıyla güncellenmiştir.
+
+## 16.09 — dağıtım öncesi devam
+
+- [x] Yerel Claude klasör değişimi; eski global izinler korunur, yeniden başlatma istenir, eski test yeni klasöre taşınmaz.
+- [x] Extension bağlantısı ve ilk tarama için MCP gönderimi zorunlu. 7 hedefli kontrol geçti.
+- [x] Yeni Codex MCP kaydı `claudian-next` adı ve ayrı sahiplik bloğu kullanır; güncelleme/kaldırma kayıt değişmişse reddeder. Eski `claudian` korunur. Sahiplik + yükseltme/kaldırma regresyonları 20/20 geçti.
+- [ ] Codex skill/kural/geçiş sahipliği hâlâ açık; bu nedenle normal kurulum kapısı Codex için açılmadı.
+- [x] Windows alpha.2 NSIS yükleyicisi üretildi; final release olarak yayımlanmadı.
+- [ ] [Ortak gateway ve cihaz eşleme](PUBLIC-GATEWAY.md) uygulanacak. Mevcut kişisel web Core çok kullanıcılı dağıtım değildir.
+
+Kaynak GitHub'a gönderildi. Final website/release ve gerçek hesap kabulü tamamlandı sayılmaz.
