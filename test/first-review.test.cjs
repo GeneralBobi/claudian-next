@@ -2,6 +2,14 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs/promises'),path=require('node:path'),os=require('node:os');
 const review=require('../first-review.cjs');
+test('desktop extension first review requires its MCP submission, not a file-only result',async t=>{
+ const {p,vault,dataDir}=await fixture(t);p.hosts=[{id:'claude-desktop',artifacts:{route:'desktop-extension'}}];await fs.writeFile(path.join(dataDir,'profile.json'),JSON.stringify(p));
+ const request=await review.begin(dataDir,p,'claude-desktop');assert.doesNotMatch(request.prompt,/Otherwise write/);
+ const r=await review.read(dataDir,vault,'claude-desktop'),args={request_id:r.request_id,value:r.value,status:'completed',summary:'Source review completed.'};
+ const record=JSON.parse(await fs.readFile(path.join(dataDir,'reviews','claude-desktop.json')));await fs.writeFile(record.output,JSON.stringify(args));
+ assert.equal((await review.status(dataDir,vault,'claude-desktop')).status,'waiting');await fs.unlink(record.output);
+ await review.submit(dataDir,vault,'claude-desktop',args);assert.equal((await review.status(dataDir,vault,'claude-desktop')).status,'completed');
+});
 async function fixture(t){
  const root=await fs.mkdtemp(path.join(os.tmpdir(),'review-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));
  const vault=path.join(root,'Boran Birtanır notes'),dataDir=path.join(root,'data');await fs.mkdir(vault);await fs.mkdir(dataDir);

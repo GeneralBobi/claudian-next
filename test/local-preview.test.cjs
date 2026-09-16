@@ -15,7 +15,8 @@ test('installed local lane keeps other hosts, cloud and unrelated mutations gate
  assert.equal(await allows('memory:challenge',['claude-desktop'],core),true);
  assert.equal(await allows('connector:desktop-drag',[],core),true);
  assert.equal(await allows('companion:local-update',[],core),true);
- for(const name of ['connector:start','connector:approve','memory:relocate','memory:repair','future:mutation'])assert.equal(await allows(name,[],core),false,name);
+ assert.equal(await allows('memory:relocate',[],core),true);
+ for(const name of ['connector:start','connector:approve','memory:repair','future:mutation'])assert.equal(await allows(name,[],core),false,name);
  assert.equal(await allows('memory:challenge',['codex'],core),false);
  profile.access='read';assert.equal(await allows('companion:local-update',[],core),false);
  profile.hosts.push({id:'codex'});assert.equal(await allows('connector:desktop-install',[],core),false);

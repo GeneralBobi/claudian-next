@@ -316,6 +316,9 @@ module.exports = (Setup, {HOSTS, hash, assertOrdinaryPath, json, atomicJson, exi
       // Access first. A memory the model cannot read is the failure this product exists to
       // prevent, so the new folder is granted before anything starts pointing at it.
       for (const host of profile.hosts) {
+        // The Next extension resolves the active folder from this profile. It owns no
+        // global Claude filesystem grant, so changing folders must not edit one.
+        if (!this.legacy && host.artifacts?.route === 'desktop-extension') continue;
         const plan = await grants.planFor(host.id, this.home, next, async file => {
           await assertOrdinaryPath(file);
           return await exists(file) ? await fs.readFile(file, 'utf8') : null;

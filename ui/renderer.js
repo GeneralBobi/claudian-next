@@ -357,7 +357,7 @@ document.addEventListener('click',async e=>{const nav=e.target.closest('[data-vi
   const target=a==='relocate-same'?(healthData&&healthData.vault)||(state.profile&&state.profile.vault):await api.chooseFolder();
   if(target){
    const status=document.querySelector('#relocate-status');if(status)status.textContent=t('Working…','Çalışıyor…');
-   try{const moved=await api.relocate(target);healthData=null;notice=t('Notes folder is now ','Not klasörü artık ')+moved.vault+t('. Check your connections again so the proof matches the new folder.','. Kanıtın yeni klasörle eşleşmesi için bağlantılarını yeniden kontrol et.');}
+   try{const moved=await api.relocate(target);healthData=null;notice=t('Notes folder is now ','Not klasörü artık ')+moved.vault+t('. Your old notes stayed in their folder. Restart your AI application, then verify access to this folder.','. Eski notların kendi klasöründe kaldı. AI uygulamanı yeniden başlat, ardından bu klasöre erişimi doğrula.');}
    catch(e){notice=e.message;}
    state=await api.snapshot();await render();
   }

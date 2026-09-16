@@ -22,4 +22,10 @@ Bu dilim doğal dil çıkarımı, beklenti üretimi veya bağlı diğer notları
 
 ## Teknik teslim
 
+### Klasör ve gerçek MCP kanıtı — 16.09 devamı
+
+Yerel Claude akışında klasör değiştirme açıldı. Extension seçili klasörü profilden çözer; eski Claude filesystem izinlerine dokunulmaz. Eski klasör kanıtı yeni klasörde geçmez. Açık AI sürecinin eski klasöre yazması sunucu tarafından reddedilir; arayüz yeniden başlatmayı açıkça ister. Notlar taşınmaz veya silinmez.
+
+Bağlantı testi ve ilk tarama yalnız extension'ın MCP gönderimiyle onaylanır. Başka bir uygulamanın yerel yanıt dosyası yazması yeterli değildir. Bu değişiklikleri kapsayan 7 hedefli kontrol geçti; gerçek hesap kabulü yapılmadı.
+
 Ortak profil yazarları reentrant kilit ile sıralandı; farklı süreçlerin kilidi çalınmaz. Ayrıntı: [profil değişiklikleri](PROFILE-MUTATIONS.md). Windows protokol şablonlarında satır sonu tutarlılığı düzeltildi. 255 birim kontrolü geçti; sonraki dar yerel-akış/izolasyon/protokol kontrolleri 11/11 geçti. Windows `win-unpacked` paketi üretildi. Bu testler gerçek hesap veya kullanıcı kabulü değildir. 1.0.0 final yayını henüz yapılmadı.
