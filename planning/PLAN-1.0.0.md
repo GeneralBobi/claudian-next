@@ -181,3 +181,10 @@ Karakterli panel ve gerçek yerel kaynak karşılıkları uygulandı; ayrıntı 
 - [ ] [Ortak gateway ve cihaz eşleme](PUBLIC-GATEWAY.md) uygulanacak. Mevcut kişisel web Core çok kullanıcılı dağıtım değildir.
 
 Kaynak GitHub'a gönderildi. Final website/release ve gerçek hesap kabulü tamamlandı sayılmaz.
+
+## 17.09 — erişimi geri alma
+
+- [x] Yerel Claude kartına erişimi kesme ve açık onay eklendi; dar işlem kapısı yalnız Claude kaldırmayı kabul eder. Notlar/eski bağlantılar korunur, extension kaldırmanın Claude içinde yapıldığı belirtilir.
+- [x] Bağlantı yeniden ekleme ekranı normal önizlemede yalnız desteklenen yerel Claude seçimini sunar; diğer hostları seçtirip işlem kapısında reddetmez.
+- [x] Üç hedefli kapı/extension kontrolü ve renderer sözdizimi kontrolü geçti. Canlı hesap testi yapılmadı.
+- [ ] Bu kaynak dilimi önceki alpha.2 yükleyicisinde yoktur; yeniden paketleme ve final yayın açık.

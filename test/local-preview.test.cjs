@@ -13,6 +13,8 @@ test('local setup only authorizes Claude plans and their matching prepared ID',a
 test('installed local lane keeps other hosts, cloud and unrelated mutations gated',async()=>{
  const profile={hosts:[{id:'claude-desktop'}],access:'write'},core={snapshot:async()=>({profile})};
  assert.equal(await allows('memory:challenge',['claude-desktop'],core),true);
+ assert.equal(await allows('memory:remove',['claude-desktop'],core),true);
+ assert.equal(await allows('memory:remove',['codex'],core),false);
  assert.equal(await allows('connector:desktop-drag',[],core),true);
  assert.equal(await allows('companion:local-update',[],core),true);
  assert.equal(await allows('memory:relocate',[],core),true);
